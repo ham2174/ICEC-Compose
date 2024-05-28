@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- default colors-->
+    <color name="main">#E6FA00</color>
+    <color name="sub">#3098FF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="grey1">#1E1E1E</color>
+    <color name="grey2">#333333</color>
+    <color name="grey3">#505050</color>
+    <color name="grey4">#808080</color>
+    <color name="grey5">#9F9F9F</color>
+    <color name="grey6">#ECECEC</color>
+
+    <!-- light colors-->
+    <color name="background_light">#F5F5F5</color>
+
+    <!-- dark colors-->
+    <color name="background_dark">#121212</color>
+</resources>
