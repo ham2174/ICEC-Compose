@@ -4,10 +4,14 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -15,9 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ham.icec.compose.designsystem.R
-import com.ham.icec.compose.designsystem.modifier.clickableSingle
+import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
-import com.ham.icec.compose.domain.entity.ImageInfo
 import com.ham.icec.compose.gallery.component.GalleryContents
 import com.ham.icec.compose.ui.common.IcecTopBar
 import kotlinx.collections.immutable.ImmutableList
@@ -33,25 +36,39 @@ fun GalleryRoute(
 
     GalleryScreen(
         galleryImages = uiState.galleryImages.toImmutableList(),
-        onNavigateToHome = onNavigateToHome,
-        fetchNextGalleryList = viewModel::fetchNextGalleryList,
-        onNavigateToMosaic = onNavigateToMosaic
+        isLastPage = uiState.isLastPage,
+        onNextPageImages = viewModel::fetchNextGalleryList,
+        onPrevious = onNavigateToHome,
+        onClickPhoto = onNavigateToMosaic
     )
 }
 
+private const val THRESHOLD = 8
+
 @Composable
 internal fun GalleryScreen(
-    galleryImages: ImmutableList<ImageInfo>,
-    fetchNextGalleryList: () -> Unit,
-    onNavigateToHome: () -> Unit,
-    onNavigateToMosaic: (String) -> Unit
+    galleryImages: ImmutableList<ContentImage>,
+    isLastPage: Boolean,
+    onNextPageImages: () -> Unit,
+    onPrevious: () -> Unit,
+    onClickPhoto: (String) -> Unit,
 ) {
+    val lazyGridState = rememberLazyGridState()
+    val derivedStateOf =
+        remember(galleryImages) { derivedStateOf { lazyGridState.firstVisibleItemIndex >= galleryImages.size - THRESHOLD } }
+
+    LaunchedEffect(derivedStateOf.value) {
+        if (derivedStateOf.value && isLastPage.not() && galleryImages.isNotEmpty()) {
+            onNextPageImages()
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         IcecTopBar(
             leadingContent = {
                 Icon(
-                    modifier = Modifier.clickableSingle(
-                        onClick = onNavigateToHome
+                    modifier = Modifier.clickableSingleNoRipple(
+                        onClick = onPrevious
                     ),
                     painter = painterResource(id = R.drawable.ic_close_32),
                     contentDescription = "Close",
@@ -81,9 +98,9 @@ internal fun GalleryScreen(
             }
         } else {
             GalleryContents(
-                galleryImages = galleryImages,
-                fetchNextGalleryList = fetchNextGalleryList,
-                onNavigateToMosaic = onNavigateToMosaic
+                lazyGridState = lazyGridState,
+                photos = galleryImages,
+                onClickPhoto = onClickPhoto
             )
         }
     }
@@ -101,11 +118,12 @@ private fun GalleryScreenDarkPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ImageInfo(0, it.toLong(), "", "")
+                ContentImage(it.toLong(), "")
             }.toImmutableList(),
-            onNavigateToHome = {},
-            fetchNextGalleryList = {},
-            onNavigateToMosaic = {}
+            isLastPage = false,
+            onNextPageImages = {},
+            onPrevious = {},
+            onClickPhoto = {}
         )
     }
 }
@@ -120,11 +138,12 @@ private fun GalleryScreenLightPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ImageInfo(0, 0, "", "")
+                ContentImage(it.toLong(), "")
             }.toImmutableList(),
-            onNavigateToHome = {},
-            fetchNextGalleryList = {},
-            onNavigateToMosaic = {}
+            isLastPage = false,
+            onNextPageImages = {},
+            onPrevious = {},
+            onClickPhoto = {}
         )
     }
 }

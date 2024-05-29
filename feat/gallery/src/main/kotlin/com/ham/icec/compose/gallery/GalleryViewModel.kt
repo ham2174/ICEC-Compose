@@ -18,10 +18,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class GalleryUiState(
-    val galleryImages: List<ImageInfo> = emptyList()
-)
-
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
     private val getGalleryImagesUseCase: GetGalleryImagesUseCase
@@ -35,11 +31,27 @@ class GalleryViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             page.flatMapConcat { page ->
-                getGalleryImagesUseCase(page = page)
+                getGalleryImagesUseCase(page = page).map { images ->
+                    images.map { info ->
+                        ContentImage(
+                            id = info.id,
+                            stringUri = info.stringUri
+                        )
+                    }
+                }
             }.collect { newImages ->
-                _uiState.value = _uiState.value.copy(
-                    galleryImages = _uiState.value.galleryImages + newImages
-                )
+                val currentImages = _uiState.value.galleryImages
+
+                if (newImages.size < 20) {
+                    _uiState.value = _uiState.value.copy(
+                        isLastPage = true,
+                        galleryImages = currentImages + newImages
+                    )
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        galleryImages = currentImages + newImages
+                    )
+                }
             }
         }
     }
