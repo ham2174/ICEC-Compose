@@ -49,8 +49,8 @@ retrofit = "2.11.0"
 # okhttp
 okHttp = "4.12.0"
 
-# glide
-glide = "2.3.3"
+# image
+landscapist = "2.3.3"
 
 # junit4
 junit = "4.13.2"
@@ -128,7 +128,8 @@ protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref 
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 
 # glide
-compose-glide = { group = "com.github.skydoves", name = "landscapist-glide", version.ref = "glide" }
+compose-glide = { group = "com.github.skydoves", name = "landscapist-glide", version.ref = "landscapist" }
+compose-coil = { group = "com.github.skydoves", name = "landscapist-coil", version.ref = "landscapist" }
 
 # dagger hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "daggerHilt" }

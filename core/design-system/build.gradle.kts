@@ -8,7 +8,7 @@ android {
 }
 
 dependencies {
-    api(libs.compose.glide)
+    api(libs.compose.coil)
 
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
