@@ -6,6 +6,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.ham.icec.compose.detect.DETECT_ROUTE
+import com.ham.icec.compose.detect.detectScreen
 import com.ham.icec.compose.gallery.GALLERY_ROUTE
 import com.ham.icec.compose.gallery.galleryScreen
 import com.ham.icec.compose.home.HOME_ROUTE
@@ -25,30 +27,38 @@ fun IcecNavHost(
     ) {
         with(navController) {
             homeRoute(
-                onClickCamera = { },
-                onClickGallery = ::onNavigateToGallery
+                onClickCamera = { }, // TODO : 카메라 화면 구현
+                onClickGallery = ::navigateToGallery
             )
             galleryScreen(
-                onNavigateToHome = ::onNavigateToHome,
-                onNavigateToMosaic = ::onNavigateToMosaic
+                onNavigateToHome = ::navigateToHome,
+                onNavigateToMosaic = ::navigateToDetect
             )
             mosaicScreen(
-                onNavigateToHome = ::onNavigateToHome,
-                onNavigateToResult = { Log.d("IcecNavHost", "onNavigateToResult: $it") }
+                onNavigateToHome = ::navigateToHome,
+                onNavigateToResult = {  }
+            )
+            detectScreen(
+                onPreviousStep = ::navigateToHome,
+                onNextStep = ::navigateToMosaic,
             )
         }
     }
 }
 
-fun NavController.onNavigateToGallery() = navigate(GALLERY_ROUTE)
+fun NavController.navigateToMosaic() = navigate(MOSAIC_ROUTE) {
+    restoreState = true
+}
 
-fun NavController.onNavigateToHome() = navigate(HOME_ROUTE) {
+fun NavController.navigateToGallery() = navigate(GALLERY_ROUTE)
+
+fun NavController.navigateToHome() = navigate(HOME_ROUTE) {
     popUpTo(graph.id)
 }
 
-fun NavController.onNavigateToMosaic(imageStringUri: String) {
+fun NavController.navigateToDetect(imageStringUri: String) {
     val encodingUri = URLEncoder.encode(imageStringUri, "UTF-8")
-    navigate(MOSAIC_ROUTE.replace("{$IMAGE_KEY}", encodingUri)) {
+    navigate(DETECT_ROUTE.replace("{$IMAGE_KEY}", encodingUri)) {
         popUpTo(GALLERY_ROUTE) { inclusive = true }
     }
 }

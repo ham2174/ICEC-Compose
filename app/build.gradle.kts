@@ -33,6 +33,7 @@ dependencies {
     implementation(projects.feat.home)
     implementation(projects.feat.gallery)
     implementation(projects.feat.mosaic)
+    implementation(projects.feat.detect)
 
     // core
     implementation(projects.core.designSystem)
