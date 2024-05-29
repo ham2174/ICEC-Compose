@@ -39,7 +39,6 @@ dependencies {
     implementation(projects.core.designSystem)
     implementation(projects.core.data)
     implementation(projects.core.domain)
-    implementation(projects.core.local)
 
     // compose
     implementation(platform(libs.androidx.compose.bom))

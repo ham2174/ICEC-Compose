@@ -33,7 +33,6 @@ include(":app")
 include(":core:design-system")
 include(":core:domain")
 include(":core:data")
-include(":core:local")
 include(":core:ui")
 
 include(":feat:home")
