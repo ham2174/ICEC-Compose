@@ -4,23 +4,20 @@ package com.ham.icec.compose.gallery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ham.icec.compose.domain.entity.ImageInfo
-import com.ham.icec.compose.domain.usecase.GetGalleryImagesUseCase
+import com.ham.icec.compose.domain.gallery.usecase.GetPagedGalleryImagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GalleryViewModel @Inject constructor(
-    private val getGalleryImagesUseCase: GetGalleryImagesUseCase
+    private val getGalleryImagesUseCase: GetPagedGalleryImagesUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<GalleryUiState> = MutableStateFlow(GalleryUiState())
@@ -35,7 +32,7 @@ class GalleryViewModel @Inject constructor(
                     images.map { info ->
                         ContentImage(
                             id = info.id,
-                            stringUri = info.stringUri
+                            stringUri = info.path
                         )
                     }
                 }
