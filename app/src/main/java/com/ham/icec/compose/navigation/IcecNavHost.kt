@@ -1,6 +1,5 @@
 package com.ham.icec.compose.navigation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -34,10 +33,7 @@ fun IcecNavHost(
                 onNavigateToHome = ::navigateToHome,
                 onNavigateToMosaic = ::navigateToDetect
             )
-            mosaicScreen(
-                onNavigateToHome = ::navigateToHome,
-                onNavigateToResult = {  }
-            )
+            mosaicScreen()
             detectScreen(
                 onPreviousStep = ::navigateToHome,
                 onNextStep = ::navigateToMosaic,

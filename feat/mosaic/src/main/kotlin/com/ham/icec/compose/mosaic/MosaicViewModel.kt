@@ -12,38 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MosaicViewModel @Inject constructor(
+    // TODO : ML kit 로 모자이크 된 얼굴 이미지 리스트 불러오기
+) : ViewModel() {
 
-): ViewModel() {
-
-    private val _uiState: MutableStateFlow<MosaicUiState> = MutableStateFlow(MosaicUiState.Step1)
-    val uiState = _uiState.asStateFlow()
-
-    private val _event: MutableSharedFlow<MosaicEvent> = MutableSharedFlow()
-    val event = _event.asSharedFlow()
-
-    private val _uiModel: MutableStateFlow<MosaicUiModel> = MutableStateFlow(MosaicUiModel())
-    val uiModel = _uiModel.asStateFlow()
-
-    fun nextStep() {
-        viewModelScope.launch {
-            when (_uiState.value) {
-                MosaicUiState.Step1 -> _uiState.value = MosaicUiState.Step2
-                MosaicUiState.Step2 -> _event.emit(MosaicEvent.SaveMosaicImage)
-            }
-        }
-    }
-
-    fun previousStep() {
-        viewModelScope.launch {
-            when (_uiState.value) {
-                MosaicUiState.Step1 -> _event.emit(MosaicEvent.NavigateToHome)
-                MosaicUiState.Step2 -> _uiState.value = MosaicUiState.Step1
-            }
-        }
-    }
-
-    fun setMosaicImageUri(uri: String) {
-        _uiModel.value = _uiModel.value.copy(centerImage = uri)
-    }
 
 }
