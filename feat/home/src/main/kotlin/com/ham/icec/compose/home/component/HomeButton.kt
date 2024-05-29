@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import com.ham.icec.compose.designsystem.modifier.clickableSingle
+import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 
 @Composable
@@ -52,7 +53,7 @@ internal fun RowScope.HomeButton(
                 color = IcecTheme.colors.grey1,
                 shape = RoundedCornerShape(16.dp)
             )
-            .clickableSingle(onClick = onClick),
+            .clickableSingleNoRipple(onClick = onClick),
     ) {
         Column(
             modifier = Modifier
