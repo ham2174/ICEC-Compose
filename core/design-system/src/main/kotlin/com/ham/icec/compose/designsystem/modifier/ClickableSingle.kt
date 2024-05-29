@@ -19,7 +19,6 @@ fun Modifier.clickableSingle(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
-    interactionSource: MutableInteractionSource? = null,
     onClick: () -> Unit
 ): Modifier = composed(
     inspectorInfo =
@@ -38,7 +37,37 @@ fun Modifier.clickableSingle(
         onClick = { manager.handle { onClick() } },
         role = role,
         indication = LocalIndication.current,
-        interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+        interactionSource = remember { MutableInteractionSource() }
+    )
+}
+
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+fun Modifier.clickableSingleNoRipple(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onClick: () -> Unit
+): Modifier = composed(
+    inspectorInfo =
+    debugInspectorInfo {
+        name = "clickable"
+        properties["enabled"] = enabled
+        properties["onClickLabel"] = onClickLabel
+        properties["role"] = role
+        properties["onClick"] = onClick
+    }
+) {
+    val manager: SingleEventHandler = remember { DefaultSingleEventHandler() }
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Modifier.clickable(
+        enabled = enabled,
+        onClickLabel = onClickLabel,
+        onClick = { manager.handle { onClick() } },
+        role = role,
+        indication = null,
+        interactionSource = interactionSource
     )
 }
 
