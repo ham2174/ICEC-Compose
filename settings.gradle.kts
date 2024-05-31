@@ -34,6 +34,7 @@ include(":core:design-system")
 include(":core:domain")
 include(":core:data")
 include(":core:ui")
+include(":core:face-detection")
 
 include(":feat:home")
 include(":feat:gallery")
