@@ -1,5 +1,7 @@
 package com.ham.icec.compose.di.datasource
 
+import com.ham.icec.compose.data.datasource.local.DetectDataSource
+import com.ham.icec.compose.data.datasource.local.DetectDataSourceImpl
 import com.ham.icec.compose.data.datasource.local.GalleryDataSource
 import com.ham.icec.compose.data.datasource.local.GalleryDataSourceImpl
 import dagger.Binds
@@ -15,5 +17,9 @@ abstract class LocalDataSourcesModule {
     @Binds
     @Singleton
     abstract fun bindsGalleryDataSource(dataSourceImpl: GalleryDataSourceImpl): GalleryDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindsDetectDataSource(dataSourceImpl: DetectDataSourceImpl): DetectDataSource
 
 }
