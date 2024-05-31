@@ -1,5 +1,7 @@
 package com.ham.icec.compose.di
 
+import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCase
+import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCaseImpl
 import com.ham.icec.compose.domain.gallery.usecase.GetPagedGalleryImagesUseCase
 import com.ham.icec.compose.domain.gallery.usecase.GetPagedGalleryImagesUseCaseImpl
 import dagger.Binds
@@ -15,5 +17,10 @@ abstract class UseCaseModule {
     abstract fun bindLoadRecentlyImagesUseCase(
         useCaseImpl: GetPagedGalleryImagesUseCaseImpl
     ): GetPagedGalleryImagesUseCase
+
+    @Binds
+    abstract fun bindGetDetectedFaceImagesUseCase(
+        useCaseImpl: GetDetectedFaceImagesUseCaseImpl
+    ): GetDetectedFaceImagesUseCase
 
 }
