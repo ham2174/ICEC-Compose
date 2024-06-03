@@ -14,7 +14,7 @@ class DetectDataSourceImpl @Inject constructor(
     private val faceDetector: DetectionService
 ) : DetectDataSource {
 
-    override fun getDetectedFaces(
+    override fun getDetectedFaceBoundingBoxes(
         imagePath: String,
         mode: DataProcessingMode
     ): Flow<List<Rect>> =

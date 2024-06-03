@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DetectDataSource {
 
-    fun getDetectedFaces(
+    fun getDetectedFaceBoundingBoxes(
         imagePath: String,
         mode: DataProcessingMode
     ): Flow<List<Rect>>

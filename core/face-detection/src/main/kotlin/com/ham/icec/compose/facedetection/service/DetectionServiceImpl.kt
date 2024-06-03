@@ -22,7 +22,6 @@ class DetectionServiceImpl @Inject constructor(
         image: String,
         performanceMode: PerformanceMode
     ): List<Rect> {
-        Log.d("이미지 패스", image)
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(performanceMode.type)
             .build()
@@ -30,6 +29,9 @@ class DetectionServiceImpl @Inject constructor(
         val inputImage = InputImage.fromFilePath(context, image.toUri())
 
         return suspendCancellableCoroutine { continuation ->
+            continuation.invokeOnCancellation {
+                detector.close()
+            }
             with(continuation) {
                 detector.process(inputImage)
                     .addOnSuccessListener { faces ->
