@@ -27,14 +27,9 @@ fun NavGraphBuilder.detectScreen(
     ) { backStackEntry ->
         val imageStringUri = backStackEntry.arguments?.getString(IMAGE_KEY) ?: NO_IMAGE_STRING_URI
         val decodingUri = URLDecoder.decode(imageStringUri, "UTF-8")
-        val viewModel: DetectViewModel = hiltViewModel()
-
-        LaunchedEffect(Unit) {
-            viewModel.setCenterImageUri(decodingUri)
-        }
 
         DetectRoute(
-            viewModel = viewModel,
+            decodingUri = decodingUri,
             onNextStep = onNextStep,
             onPreviousStep = onPreviousStep
         )
