@@ -25,6 +25,7 @@ data class IcecColors(
     val btnBg1: Color,
     val btnBg2: Color,
     val btnBg3: Color,
+    val btnStroke: Color,
     val imgBg1: Color,
 ) {
     companion object {
@@ -47,6 +48,7 @@ data class IcecColors(
             btnBg1 = colorResource(id = R.color.white),
             btnBg2 = colorResource(id = R.color.sub),
             btnBg3 = colorResource(id = R.color.grey1),
+            btnStroke = colorResource(id = R.color.grey2),
             imgBg1 = colorResource(id = R.color.grey1),
         )
 
@@ -69,6 +71,7 @@ data class IcecColors(
             btnBg1 = colorResource(id = R.color.white),
             btnBg2 = colorResource(id = R.color.sub),
             btnBg3 = colorResource(id = R.color.white),
+            btnStroke = colorResource(id = R.color.grey6),
             imgBg1 = colorResource(id = R.color.grey5),
         )
     }
