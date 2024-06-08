@@ -4,4 +4,7 @@
     <string name="next">다음</string>
     <string name="all_select">전체선택</string>
     <string name="all_unselect">전체해제</string>
+    <string name="fast_detection">빠른 검출</string>
+    <string name="performance_detection">정밀 검출</string>
+    <string name="detection_mode">검출 모드</string>
 </resources>
