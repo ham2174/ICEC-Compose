@@ -11,6 +11,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,11 +28,11 @@ import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.component.BottomContents
 import com.ham.icec.compose.detect.component.CenterImage
+import com.ham.icec.compose.domain.detect.model.DataProcessingMode
 import com.ham.icec.compose.ui.common.IcecTopBar
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-
 
 @ExperimentalCoroutinesApi
 @Composable
@@ -40,19 +43,26 @@ fun DetectRoute(
     onPreviousStep: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var hasSetImage by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.setCenterImage(decodingUri)
+    if (!hasSetImage) {
+        LaunchedEffect(Unit) {
+            viewModel.sendEvent(DetectEvent.Initial(decodingUri))
+            hasSetImage = true
+        }
     }
 
     DetectScreen(
         centerImage = state.centerImage.toUri(),
         detectedImages = state.detectedImages.toImmutableList(),
         isLoading = state.isLoading,
+        dataProcessingMode = state.dataProcessingMode,
         onNextStep = onNextStep,
         onPreviousStep = onPreviousStep,
-        onClickAllSelect = { viewModel.eventHandler(DetectEvent.OnClickAllSelectButton) },
-        onClickDetectedFace = { detectedImage -> viewModel.eventHandler(DetectEvent.OnClickDetectedFaceImage(detectedImage)) },
+        onClickAllSelect = { viewModel.sendEvent(DetectEvent.OnClickAllSelectButton) },
+        onClickDetectedFace = { detectedImage -> viewModel.sendEvent(DetectEvent.OnClickDetectedFaceImage(detectedImage)) },
+        onClickFastMode = { viewModel.sendEvent(DetectEvent.OnClickFastModeButton(DataProcessingMode.SPEED)) },
+        onClickPerformanceMode = { viewModel.sendEvent(DetectEvent.OnClickPerformanceModeButton(DataProcessingMode.ACCURACY)) },
     )
 }
 
@@ -61,10 +71,13 @@ fun DetectScreen(
     centerImage: Uri,
     detectedImages: ImmutableList<DetectedImage>,
     isLoading: Boolean,
+    dataProcessingMode: DataProcessingMode,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
     onClickAllSelect: () -> Unit,
-    onClickDetectedFace: (DetectedImage) -> Unit
+    onClickDetectedFace: (DetectedImage) -> Unit,
+    onClickFastMode: () -> Unit,
+    onClickPerformanceMode: () -> Unit,
 ) {
     Box {
         Column(
@@ -104,8 +117,11 @@ fun DetectScreen(
 
             BottomContents(
                 detectedImages = detectedImages,
+                selectedMode = dataProcessingMode,
                 onClickAllSelect = onClickAllSelect,
-                onClickImage = onClickDetectedFace
+                onClickImage = onClickDetectedFace,
+                onClickFastMode = onClickFastMode,
+                onClickPerformanceMode = onClickPerformanceMode
             )
         }
 

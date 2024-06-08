@@ -2,7 +2,6 @@ package com.ham.icec.compose.facedetection.service
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import androidx.core.net.toUri
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection

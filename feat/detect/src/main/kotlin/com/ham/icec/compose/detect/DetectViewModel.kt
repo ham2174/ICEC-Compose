@@ -1,5 +1,6 @@
 package com.ham.icec.compose.detect
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ham.icec.compose.domain.detect.model.DataProcessingMode
@@ -8,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -24,55 +24,20 @@ class DetectViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private val _event: MutableSharedFlow<DetectEvent> = MutableSharedFlow()
-    val event = _event.asSharedFlow()
 
     init {
         viewModelScope.launch {
             _event.collect { event ->
-                when (event) {
-                    is DetectEvent.OnClickAllSelectButton -> {
-                        if (_uiState.value.detectedImages.none { it.isSelected }) { // isSelected의 값이 모두 false인 경우
-                            _uiState.value = _uiState.value.copy(
-                                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
-                                    detectedImage.copy(isSelected = true)
-                                },
-                                selectedImages = _uiState.value.detectedImages.map { detectedImage ->
-                                    detectedImage.face
-                                }
-                            )
-                        } else {
-                            _uiState.value = _uiState.value.copy(
-                                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
-                                    detectedImage.copy(isSelected = false)
-                                },
-                                selectedImages = emptyList()
-                            )
-                        }
-                    }
-
-                    is DetectEvent.OnClickDetectedFaceImage -> { // 이미지 클릭 시 isSelected 값 변경
-                        _uiState.value = _uiState.value.copy(
-                            detectedImages = _uiState.value.detectedImages.map { detectedImage ->
-                                if (detectedImage.face.id == event.detectedFaces.face.id) {
-                                    detectedImage.copy(isSelected = !detectedImage.isSelected)
-                                } else {
-                                    detectedImage
-                                }
-                            }
-                        )
-                    }
-                }
+                eventHandler(event)
             }
         }
     }
 
-    fun setCenterImage(imagePath: String) {
+    fun detectFace() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(centerImage = imagePath)
-
             getDetectedFaceImagesUseCase(
-                imagePath = imagePath,
-                mode = DataProcessingMode.SPEED // TODO : 사용자가 속도 위주, 정확도 위주로 선택 하게 수정
+                imagePath = _uiState.value.centerImage,
+                mode = _uiState.value.dataProcessingMode
             ).onStart {
                 _uiState.value = _uiState.value.copy(isLoading = true)
             }.collect { faces ->
@@ -86,10 +51,66 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun eventHandler(event: DetectEvent) {
+    fun sendEvent(event: DetectEvent) {
         viewModelScope.launch {
             _event.emit(event)
         }
+    }
+
+    private fun eventHandler(event: DetectEvent) {
+        when (event) {
+            is DetectEvent.Initial -> updateCenterImage(event.imagePath)
+            is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
+            is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
+            is DetectEvent.OnClickFastModeButton -> changeDataProcessingMode(event.dataProcessingMode)
+            is DetectEvent.OnClickPerformanceModeButton -> changeDataProcessingMode(event.dataProcessingMode)
+        }
+    }
+
+    private fun handleSelectAll() {
+        if (_uiState.value.detectedImages.none { it.isSelected }) {
+            _uiState.value = _uiState.value.copy(
+                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                    detectedImage.copy(isSelected = true)
+                },
+                selectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                    detectedImage.face
+                }
+            )
+        } else {
+            _uiState.value = _uiState.value.copy(
+                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                    detectedImage.copy(isSelected = false)
+                },
+                selectedImages = emptyList()
+            )
+        }
+    }
+
+    private fun updateCenterImage(imagePath: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(centerImage = imagePath)
+            detectFace()
+        }
+    }
+
+    private fun changeDataProcessingMode(mode: DataProcessingMode) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(dataProcessingMode = mode)
+            detectFace()
+        }
+    }
+
+    private fun toggleFaceSelection(detectedFaces: DetectedImage) {
+        _uiState.value = _uiState.value.copy(
+            detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                if (detectedImage.face.id == detectedFaces.face.id) {
+                    detectedImage.copy(isSelected = !detectedImage.isSelected)
+                } else {
+                    detectedImage
+                }
+            }
+        )
     }
 
 }

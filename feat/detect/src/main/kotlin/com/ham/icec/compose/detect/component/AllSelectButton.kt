@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,7 +56,15 @@ internal fun AllSelectButton(
                 stringResource(id = R.string.all_unselect)
             },
             style = IcecTheme.typography.b2,
-            color = IcecTheme.colors.textColor
+            color = if (isSystemInDarkTheme()) {
+                IcecTheme.colors.white
+            } else {
+                if (isEmptyList) {
+                    IcecTheme.colors.black
+                } else {
+                    IcecTheme.colors.white
+                }
+            }
         )
     }
 }
