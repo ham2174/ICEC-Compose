@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import com.ham.icec.compose.data.datasource.local.DetectDataSource
 import com.ham.icec.compose.data.detect.model.toBitmap
 import com.ham.icec.compose.data.detect.model.toDomain
-import com.ham.icec.compose.domain.detect.model.DataProcessingMode
 import com.ham.icec.compose.domain.detect.model.DetectedFace
 import com.ham.icec.compose.domain.detect.repository.DetectRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,14 +17,8 @@ class DetectRepositoryImpl @Inject constructor(
     private val detectDataSource: DetectDataSource
 ) : DetectRepository {
 
-    override fun getDetectedFaces(
-        imagePath: String,
-        mode: DataProcessingMode
-    ): Flow<List<DetectedFace>> =
-        detectDataSource.getDetectedFaceBoundingBoxes(
-            imagePath = imagePath,
-            mode = mode
-        ).map { boundingBoxes ->
+    override fun getDetectedFaces(imagePath: String): Flow<List<DetectedFace>> =
+        detectDataSource.getDetectedFaceBoundingBoxes(imagePath = imagePath).map { boundingBoxes ->
             val originalBitmapImage = imagePath.toBitmap(context)
 
             boundingBoxes.map { rect ->

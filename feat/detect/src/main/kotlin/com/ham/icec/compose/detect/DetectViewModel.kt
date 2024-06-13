@@ -3,13 +3,13 @@ package com.ham.icec.compose.detect
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ham.icec.compose.domain.detect.model.DataProcessingMode
 import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,27 +33,42 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun detectFace() {
+    fun initialCenterImage(imagePath: String) {
         viewModelScope.launch {
-            getDetectedFaceImagesUseCase(
-                imagePath = _uiState.value.centerImage,
-                mode = _uiState.value.dataProcessingMode
-            ).onStart {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-            }.collect { faces ->
-                _uiState.value = _uiState.value.copy(
-                    detectedImages = faces.map { face ->
-                        DetectedImage(face = face, isSelected = false)
-                    },
-                    isLoading = false
-                )
-            }
+            _event.emit(DetectEvent.Initial(imagePath))
         }
     }
 
-    fun sendEvent(event: DetectEvent) {
+    fun onClickAllSelectButton() {
         viewModelScope.launch {
-            _event.emit(event)
+            _event.emit(DetectEvent.OnClickAllSelectButton)
+        }
+    }
+
+    fun onClickDetectedFaceImage(detectedImage: DetectedImage) {
+        viewModelScope.launch {
+            _event.emit(DetectEvent.OnClickDetectedFaceImage(detectedImage))
+        }
+    }
+
+    private fun detectFace() {
+        viewModelScope.launch {
+            getDetectedFaceImagesUseCase(imagePath = _uiState.value.centerImage)
+                .catch {
+                    Log.d("에러 발생", it.toString())
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                }
+                .onStart {
+                    _uiState.value = _uiState.value.copy(isLoading = true)
+                }
+                .collect { faces ->
+                    _uiState.value = _uiState.value.copy(
+                        detectedImages = faces.map { face ->
+                            DetectedImage(face = face, isSelected = false)
+                        },
+                        isLoading = false
+                    )
+                }
         }
     }
 
@@ -62,8 +77,6 @@ class DetectViewModel @Inject constructor(
             is DetectEvent.Initial -> updateCenterImage(event.imagePath)
             is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
             is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
-            is DetectEvent.OnClickFastModeButton -> changeDataProcessingMode(event.dataProcessingMode)
-            is DetectEvent.OnClickPerformanceModeButton -> changeDataProcessingMode(event.dataProcessingMode)
         }
     }
 
@@ -90,13 +103,6 @@ class DetectViewModel @Inject constructor(
     private fun updateCenterImage(imagePath: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(centerImage = imagePath)
-            detectFace()
-        }
-    }
-
-    private fun changeDataProcessingMode(mode: DataProcessingMode) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(dataProcessingMode = mode)
             detectFace()
         }
     }

@@ -28,7 +28,6 @@ import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.component.BottomContents
 import com.ham.icec.compose.detect.component.CenterImage
-import com.ham.icec.compose.domain.detect.model.DataProcessingMode
 import com.ham.icec.compose.ui.common.IcecTopBar
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -47,7 +46,7 @@ fun DetectRoute(
 
     if (!hasSetImage) {
         LaunchedEffect(Unit) {
-            viewModel.sendEvent(DetectEvent.Initial(decodingUri))
+            viewModel.initialCenterImage(decodingUri)
             hasSetImage = true
         }
     }
@@ -56,13 +55,10 @@ fun DetectRoute(
         centerImage = state.centerImage.toUri(),
         detectedImages = state.detectedImages.toImmutableList(),
         isLoading = state.isLoading,
-        dataProcessingMode = state.dataProcessingMode,
         onNextStep = onNextStep,
         onPreviousStep = onPreviousStep,
-        onClickAllSelect = { viewModel.sendEvent(DetectEvent.OnClickAllSelectButton) },
-        onClickDetectedFace = { detectedImage -> viewModel.sendEvent(DetectEvent.OnClickDetectedFaceImage(detectedImage)) },
-        onClickFastMode = { viewModel.sendEvent(DetectEvent.OnClickFastModeButton(DataProcessingMode.SPEED)) },
-        onClickPerformanceMode = { viewModel.sendEvent(DetectEvent.OnClickPerformanceModeButton(DataProcessingMode.ACCURACY)) },
+        onClickAllSelect = viewModel::onClickAllSelectButton,
+        onClickDetectedFace = viewModel::onClickDetectedFaceImage,
     )
 }
 
@@ -71,13 +67,10 @@ fun DetectScreen(
     centerImage: Uri,
     detectedImages: ImmutableList<DetectedImage>,
     isLoading: Boolean,
-    dataProcessingMode: DataProcessingMode,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
     onClickAllSelect: () -> Unit,
     onClickDetectedFace: (DetectedImage) -> Unit,
-    onClickFastMode: () -> Unit,
-    onClickPerformanceMode: () -> Unit,
 ) {
     Box {
         Column(
@@ -117,11 +110,8 @@ fun DetectScreen(
 
             BottomContents(
                 detectedImages = detectedImages,
-                selectedMode = dataProcessingMode,
                 onClickAllSelect = onClickAllSelect,
                 onClickImage = onClickDetectedFace,
-                onClickFastMode = onClickFastMode,
-                onClickPerformanceMode = onClickPerformanceMode
             )
         }
 

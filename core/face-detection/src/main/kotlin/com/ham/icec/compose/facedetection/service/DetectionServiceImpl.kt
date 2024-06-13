@@ -4,46 +4,50 @@ import android.content.Context
 import android.graphics.Rect
 import androidx.core.net.toUri
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceDetection
-import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.ham.icec.compose.facedetection.model.PerformanceMode
+import com.google.mlkit.vision.face.FaceDetector
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class DetectionServiceImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @Named("FastDetector") private val fastDetector: FaceDetector,
+    @Named("AccurateDetector") private val accurateDetector: FaceDetector,
 ) : DetectionService {
 
-    override suspend fun detectFaces(
-        image: String,
-        performanceMode: PerformanceMode
-    ): List<Rect> {
-        val options = FaceDetectorOptions.Builder()
-            .setPerformanceMode(performanceMode.type)
-            .build()
-        val detector = FaceDetection.getClient(options)
-        val inputImage = InputImage.fromFilePath(context, image.toUri())
+    override fun getFastDetectFaces(image: String): Flow<List<Rect>> = flow {
+        emit(fastDetector.process(image))
+    }.flowOn(Dispatchers.Default)
 
-        return suspendCancellableCoroutine { continuation ->
+    override fun getAccurateDetectFaces(image: String): Flow<List<Rect>> = flow {
+        emit(accurateDetector.process(image))
+    }.flowOn(Dispatchers.Default)
+
+    private suspend fun FaceDetector.process(image: String): List<Rect> =
+        suspendCancellableCoroutine { continuation ->
+            val inputImage = InputImage.fromFilePath(context, image.toUri())
+
+            this.process(inputImage)
+                .addOnSuccessListener { faces ->
+                    continuation.resume(faces.map { it.boundingBox })
+                }
+                .addOnFailureListener { e ->
+                    continuation.resumeWithException(e)
+                }
+                .addOnCanceledListener {
+                    continuation.cancel()
+                }
+
             continuation.invokeOnCancellation {
-                detector.close()
-            }
-            with(continuation) {
-                detector.process(inputImage)
-                    .addOnSuccessListener { faces ->
-                        resume(faces.map { it.boundingBox })
-                    }
-                    .addOnFailureListener { e ->
-                        resumeWithException(e)
-                    }
-                    .addOnCanceledListener {
-                        cancel()
-                    }
+                this.close()
             }
         }
-    }
 
 }
