@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface DetectRepository {
 
-    fun getDetectedFaces(imagePath: String): Flow<List<DetectedFace>>
+    fun getDetectedFaces(image: ByteArray): Flow<List<DetectedFace>>
 
 }

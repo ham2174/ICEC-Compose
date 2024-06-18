@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface DetectDataSource {
 
-    fun getDetectedFaceBoundingBoxes(imagePath: String): Flow<List<Rect>>
+    fun getDetectedFaceBoundingBoxes(image: ByteArray): Flow<List<Rect>>
 
 }

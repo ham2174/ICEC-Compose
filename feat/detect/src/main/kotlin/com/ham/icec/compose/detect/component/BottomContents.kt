@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.DetectedImage
+import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.domain.detect.model.DetectedFace
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
@@ -92,42 +93,6 @@ internal fun BottomContents(
                 )
             }
         }
-
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .height(80.dp)
-//                .padding(horizontal = 16.dp)
-//        ) {
-//            Text(
-//                text = stringResource(id = R.string.detection_mode),
-//                style = IcecTheme.typography.sbt1,
-//                color = IcecTheme.colors.textColor,
-//            )
-//
-//            Spacer(modifier = Modifier.height(8.dp))
-//
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                ModeSelectButton(
-//                    modifier = Modifier.weight(1f),
-//                    text = stringResource(id = R.string.fast_detection),
-//                    isSelected = selectedMode == DataProcessingMode.SPEED,
-//                    onClick = onClickFastMode
-//                )
-//
-//                Spacer(modifier = Modifier.width(8.dp))
-//
-//                ModeSelectButton(
-//                    modifier = Modifier.weight(1f),
-//                    text = stringResource(id = R.string.performance_detection),
-//                    isSelected = selectedMode == DataProcessingMode.ACCURACY,
-//                    onClick = onClickPerformanceMode
-//                )
-//            }
-//        }
     }
 }
 
@@ -196,28 +161,32 @@ private fun Preview() {
         DetectedImage(
             face = DetectedFace(
                 id = 0,
-                image = ByteArray(0)
+                image = ByteArray(0),
+                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
             ),
             isSelected = true
         ),
         DetectedImage(
             face = DetectedFace(
                 id = 1,
-                image = ByteArray(1)
+                image = ByteArray(1),
+                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
             ),
             isSelected = true
         ),
         DetectedImage(
             face = DetectedFace(
                 id = 2,
-                image = ByteArray(2)
+                image = ByteArray(2),
+                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
             ),
             isSelected = false
         ),
         DetectedImage(
             face = DetectedFace(
                 id = 3,
-                image = ByteArray(3)
+                image = ByteArray(3),
+                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
             ),
             isSelected = false
         ),

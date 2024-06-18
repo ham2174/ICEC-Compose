@@ -1,12 +1,10 @@
 package com.ham.icec.compose.detect
 
-import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.net.toUri
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import java.net.URLDecoder
 
 const val DETECT_ROUTE = "detect/{image}"
 const val IMAGE_KEY = "image"
@@ -26,10 +24,10 @@ fun NavGraphBuilder.detectScreen(
         )
     ) { backStackEntry ->
         val imageStringUri = backStackEntry.arguments?.getString(IMAGE_KEY) ?: NO_IMAGE_STRING_URI
-        val decodingUri = URLDecoder.decode(imageStringUri, "UTF-8")
+        val originalBitmapImage = imageStringUri.toUri()
 
         DetectRoute(
-            decodingUri = decodingUri,
+            imageUri = originalBitmapImage,
             onNextStep = onNextStep,
             onPreviousStep = onPreviousStep
         )

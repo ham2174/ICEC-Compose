@@ -15,10 +15,10 @@ class DetectDataSourceImpl @Inject constructor(
     private val detectionService: DetectionService
 ) : DetectDataSource {
 
-    override fun getDetectedFaceBoundingBoxes(imagePath: String): Flow<List<Rect>> =
+    override fun getDetectedFaceBoundingBoxes(image: ByteArray): Flow<List<Rect>> =
         combine(
-            detectionService.getFastDetectFaces(imagePath),
-            detectionService.getAccurateDetectFaces(imagePath)
+            detectionService.getFastDetectFaces(image),
+            detectionService.getAccurateDetectFaces(image)
         ) { fastModeResult, accurateModeResult ->
             val result = MutableList(accurateModeResult.size) { accurateModeResult[it] }
 

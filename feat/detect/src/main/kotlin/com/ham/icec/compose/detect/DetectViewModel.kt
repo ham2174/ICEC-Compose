@@ -33,9 +33,9 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun initialCenterImage(imagePath: String) {
+    fun onSizeChangedImage(byteArray: ByteArray) {
         viewModelScope.launch {
-            _event.emit(DetectEvent.Initial(imagePath))
+            _event.emit(DetectEvent.Initial(byteArray))
         }
     }
 
@@ -53,7 +53,7 @@ class DetectViewModel @Inject constructor(
 
     private fun detectFace() {
         viewModelScope.launch {
-            getDetectedFaceImagesUseCase(imagePath = _uiState.value.centerImage)
+            getDetectedFaceImagesUseCase(image = _uiState.value.resizedImage)
                 .catch {
                     Log.d("에러 발생", it.toString())
                     _uiState.value = _uiState.value.copy(isLoading = false)
@@ -74,7 +74,7 @@ class DetectViewModel @Inject constructor(
 
     private fun eventHandler(event: DetectEvent) {
         when (event) {
-            is DetectEvent.Initial -> updateCenterImage(event.imagePath)
+            is DetectEvent.Initial -> detectImage(event.byteArray)
             is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
             is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
         }
@@ -100,9 +100,9 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    private fun updateCenterImage(imagePath: String) {
+    private fun detectImage(image: ByteArray) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(centerImage = imagePath)
+            _uiState.value = _uiState.value.copy(resizedImage = image)
             detectFace()
         }
     }

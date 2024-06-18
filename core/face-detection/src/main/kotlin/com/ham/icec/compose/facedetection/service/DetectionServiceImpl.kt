@@ -1,11 +1,9 @@
 package com.ham.icec.compose.facedetection.service
 
-import android.content.Context
 import android.graphics.Rect
-import androidx.core.net.toUri
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetector
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.ham.icec.compose.utilandroid.extension.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -17,22 +15,21 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class DetectionServiceImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     @Named("FastDetector") private val fastDetector: FaceDetector,
     @Named("AccurateDetector") private val accurateDetector: FaceDetector,
 ) : DetectionService {
 
-    override fun getFastDetectFaces(image: String): Flow<List<Rect>> = flow {
+    override fun getFastDetectFaces(image: ByteArray): Flow<List<Rect>> = flow {
         emit(fastDetector.process(image))
     }.flowOn(Dispatchers.Default)
 
-    override fun getAccurateDetectFaces(image: String): Flow<List<Rect>> = flow {
+    override fun getAccurateDetectFaces(image: ByteArray): Flow<List<Rect>> = flow {
         emit(accurateDetector.process(image))
     }.flowOn(Dispatchers.Default)
 
-    private suspend fun FaceDetector.process(image: String): List<Rect> =
+    private suspend fun FaceDetector.process(image: ByteArray): List<Rect> =
         suspendCancellableCoroutine { continuation ->
-            val inputImage = InputImage.fromFilePath(context, image.toUri())
+            val inputImage = InputImage.fromBitmap(image.toBitmap(), 0)
 
             this.process(inputImage)
                 .addOnSuccessListener { faces ->
@@ -44,6 +41,10 @@ class DetectionServiceImpl @Inject constructor(
                 .addOnCanceledListener {
                     continuation.cancel()
                 }
+
+            if (continuation.isCompleted) {
+                this.close()
+            }
 
             continuation.invokeOnCancellation {
                 this.close()

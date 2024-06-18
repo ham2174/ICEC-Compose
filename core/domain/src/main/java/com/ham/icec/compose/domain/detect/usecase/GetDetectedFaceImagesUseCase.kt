@@ -9,13 +9,13 @@ class GetDetectedFaceImagesUseCaseImpl @Inject constructor(
     private val detectRepository: DetectRepository
 ) : GetDetectedFaceImagesUseCase {
 
-    override fun invoke(imagePath: String): Flow<List<DetectedFace>> =
-        detectRepository.getDetectedFaces(imagePath = imagePath)
+    override fun invoke(image: ByteArray): Flow<List<DetectedFace>> =
+        detectRepository.getDetectedFaces(image = image)
 
 }
 
 interface GetDetectedFaceImagesUseCase {
 
-    operator fun invoke(imagePath: String): Flow<List<DetectedFace>>
+    operator fun invoke(image: ByteArray): Flow<List<DetectedFace>>
 
 }

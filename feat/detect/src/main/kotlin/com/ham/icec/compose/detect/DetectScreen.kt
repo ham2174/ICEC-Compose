@@ -9,16 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ham.icec.compose.designsystem.R
@@ -28,6 +23,7 @@ import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.component.BottomContents
 import com.ham.icec.compose.detect.component.CenterImage
+import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.ui.common.IcecTopBar
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -37,28 +33,22 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun DetectRoute(
     viewModel: DetectViewModel = hiltViewModel(),
-    decodingUri: String,
+    imageUri: Uri,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var hasSetImage by rememberSaveable { mutableStateOf(false) }
-
-    if (!hasSetImage) {
-        LaunchedEffect(Unit) {
-            viewModel.initialCenterImage(decodingUri)
-            hasSetImage = true
-        }
-    }
 
     DetectScreen(
-        centerImage = state.centerImage.toUri(),
+        centerImage = imageUri,
         detectedImages = state.detectedImages.toImmutableList(),
+        boundingBoxes = state.detectedImages.map { it.face.boundingBox }.toImmutableList(),
         isLoading = state.isLoading,
         onNextStep = onNextStep,
         onPreviousStep = onPreviousStep,
         onClickAllSelect = viewModel::onClickAllSelectButton,
         onClickDetectedFace = viewModel::onClickDetectedFaceImage,
+        onSizeChangedImage = viewModel::onSizeChangedImage
     )
 }
 
@@ -66,11 +56,13 @@ fun DetectRoute(
 fun DetectScreen(
     centerImage: Uri,
     detectedImages: ImmutableList<DetectedImage>,
+    boundingBoxes: ImmutableList<BoundingBox>,
     isLoading: Boolean,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
     onClickAllSelect: () -> Unit,
     onClickDetectedFace: (DetectedImage) -> Unit,
+    onSizeChangedImage: (ByteArray) -> Unit
 ) {
     Box {
         Column(
@@ -106,7 +98,11 @@ fun DetectScreen(
                 }
             )
 
-            CenterImage(image = centerImage)
+            CenterImage(
+                image = centerImage,
+                boundingBoxes = boundingBoxes,
+                onSizeChangedImage = onSizeChangedImage
+            )
 
             BottomContents(
                 detectedImages = detectedImages,

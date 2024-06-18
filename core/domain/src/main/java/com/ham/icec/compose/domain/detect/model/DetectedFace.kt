@@ -2,7 +2,8 @@ package com.ham.icec.compose.domain.detect.model
 
 data class DetectedFace(
     val id: Int,
-    val image: ByteArray
+    val image: ByteArray,
+    val boundingBox: BoundingBox
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
