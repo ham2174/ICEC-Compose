@@ -40,6 +40,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.domain)
     implementation(projects.core.faceDetection)
+    implementation(projects.core.utilAndroid)
 
     // compose
     implementation(platform(libs.androidx.compose.bom))

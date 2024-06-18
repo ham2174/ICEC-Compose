@@ -10,4 +10,5 @@ android {
 dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.faceDetection)
+    implementation(projects.core.utilAndroid)
 }

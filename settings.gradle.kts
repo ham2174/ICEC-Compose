@@ -35,6 +35,7 @@ include(":core:domain")
 include(":core:data")
 include(":core:ui")
 include(":core:face-detection")
+include(":core:util-android")
 
 include(":feat:home")
 include(":feat:gallery")

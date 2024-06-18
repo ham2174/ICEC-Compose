@@ -8,5 +8,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.utilAndroid)
+
     implementation(libs.mlkit.face.detection)
 }

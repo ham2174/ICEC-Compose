@@ -10,5 +10,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.utilAndroid)
+
     implementation(libs.kotlinx.collections.immutable)
 }
