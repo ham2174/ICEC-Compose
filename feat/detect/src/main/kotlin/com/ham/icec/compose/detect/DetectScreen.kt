@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import com.ham.icec.compose.detect.component.BottomContents
 import com.ham.icec.compose.detect.component.CenterImage
 import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.ui.common.IcecTopBar
+import com.ham.icec.compose.utilandroid.extension.resizedByteArray
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,17 +37,39 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun DetectRoute(
     viewModel: DetectViewModel = hiltViewModel(),
     imageUri: Uri,
-    onNextStep: () -> Unit,
+    onNextStep: (String, List<BoundingBox>) -> Unit,
     onPreviousStep: () -> Unit
 ) {
+    val context = LocalContext.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { effect ->
+            when (effect) {
+                is DetectSideEffect.ResizedImage -> {
+                    if (!state.isDetected) {
+                        imageUri.resizedByteArray(context, effect.width, effect.height).let {
+                            viewModel.onDetectImage(it)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     DetectScreen(
         centerImage = imageUri,
         detectedImages = state.detectedImages.toImmutableList(),
         boundingBoxes = state.detectedImages.map { it.face.boundingBox }.toImmutableList(),
         isLoading = state.isLoading,
-        onNextStep = onNextStep,
+        onNextStep = {
+            onNextStep(
+                imageUri.toString(),
+                state.detectedImages
+                    .filter { it.isSelected }
+                    .map { it.face.boundingBox }
+            )
+        },
         onPreviousStep = onPreviousStep,
         onClickAllSelect = viewModel::onClickAllSelectButton,
         onClickDetectedFace = viewModel::onClickDetectedFaceImage,
@@ -62,7 +87,7 @@ fun DetectScreen(
     onPreviousStep: () -> Unit,
     onClickAllSelect: () -> Unit,
     onClickDetectedFace: (DetectedImage) -> Unit,
-    onSizeChangedImage: (ByteArray) -> Unit
+    onSizeChangedImage: (Int, Int) -> Unit
 ) {
     Box {
         Column(

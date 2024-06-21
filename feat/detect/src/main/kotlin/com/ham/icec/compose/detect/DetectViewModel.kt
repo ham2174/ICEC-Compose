@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
@@ -25,6 +26,9 @@ class DetectViewModel @Inject constructor(
 
     private val _event: MutableSharedFlow<DetectEvent> = MutableSharedFlow()
 
+    private val _sideEffect: MutableSharedFlow<DetectSideEffect> = MutableSharedFlow()
+    val sideEffect = _sideEffect.asSharedFlow()
+
     init {
         viewModelScope.launch {
             _event.collect { event ->
@@ -33,9 +37,15 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun onSizeChangedImage(byteArray: ByteArray) {
+    fun onDetectImage(byteArray: ByteArray) {
         viewModelScope.launch {
-            _event.emit(DetectEvent.Initial(byteArray))
+            _event.emit(DetectEvent.OnDetectImage(byteArray))
+        }
+    }
+
+    fun onSizeChangedImage(width: Int, height: Int) {
+        viewModelScope.launch {
+            _event.emit(DetectEvent.OnSizeChangedImage(width, height))
         }
     }
 
@@ -51,30 +61,10 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    private fun detectFace() {
-        viewModelScope.launch {
-            getDetectedFaceImagesUseCase(image = _uiState.value.resizedImage)
-                .catch {
-                    Log.d("에러 발생", it.toString())
-                    _uiState.value = _uiState.value.copy(isLoading = false)
-                }
-                .onStart {
-                    _uiState.value = _uiState.value.copy(isLoading = true)
-                }
-                .collect { faces ->
-                    _uiState.value = _uiState.value.copy(
-                        detectedImages = faces.map { face ->
-                            DetectedImage(face = face, isSelected = false)
-                        },
-                        isLoading = false
-                    )
-                }
-        }
-    }
-
     private fun eventHandler(event: DetectEvent) {
         when (event) {
-            is DetectEvent.Initial -> detectImage(event.byteArray)
+            is DetectEvent.OnSizeChangedImage -> sideEffectHandler(DetectSideEffect.ResizedImage(event.width, event.height))
+            is DetectEvent.OnDetectImage -> detectImage(event.image)
             is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
             is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
         }
@@ -85,25 +75,36 @@ class DetectViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(
                 detectedImages = _uiState.value.detectedImages.map { detectedImage ->
                     detectedImage.copy(isSelected = true)
-                },
-                selectedImages = _uiState.value.detectedImages.map { detectedImage ->
-                    detectedImage.face
                 }
             )
         } else {
             _uiState.value = _uiState.value.copy(
                 detectedImages = _uiState.value.detectedImages.map { detectedImage ->
                     detectedImage.copy(isSelected = false)
-                },
-                selectedImages = emptyList()
+                }
             )
         }
     }
 
     private fun detectImage(image: ByteArray) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(resizedImage = image)
-            detectFace()
+            getDetectedFaceImagesUseCase(image = image)
+                .catch {
+                    Log.d("에러 발생", it.toString())
+                    _uiState.value = _uiState.value.copy(isLoading = false, isDetected = false)
+                }
+                .onStart {
+                    _uiState.value = _uiState.value.copy(isLoading = true)
+                }
+                .collect { faces ->
+                    _uiState.value = _uiState.value.copy(
+                        detectedImages = faces.map { face ->
+                            DetectedImage(face = face, isSelected = false)
+                        },
+                        isLoading = false,
+                        isDetected = true
+                    )
+                }
         }
     }
 
@@ -117,6 +118,16 @@ class DetectViewModel @Inject constructor(
                 }
             }
         )
+    }
+
+    private fun sideEffectHandler(effect: DetectSideEffect) {
+        viewModelScope.launch {
+            when (effect) {
+                is DetectSideEffect.ResizedImage -> _sideEffect.emit(
+                    DetectSideEffect.ResizedImage(effect.width, effect.height)
+                )
+            }
+        }
     }
 
 }

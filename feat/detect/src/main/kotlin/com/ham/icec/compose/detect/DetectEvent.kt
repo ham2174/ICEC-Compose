@@ -2,7 +2,9 @@ package com.ham.icec.compose.detect
 
 sealed class DetectEvent {
 
-    data class Initial(val byteArray: ByteArray) : DetectEvent()
+    data class OnSizeChangedImage(val width: Int, val height: Int) : DetectEvent()
+
+    data class OnDetectImage(val image: ByteArray) : DetectEvent()
 
     data object OnClickAllSelectButton : DetectEvent()
 

@@ -1,6 +1,5 @@
 package com.ham.icec.compose.detect.component
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -9,11 +8,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -23,36 +17,22 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.domain.detect.model.BoundingBox
-import com.ham.icec.compose.utilandroid.extension.resizedByteArray
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-@SuppressLint("UnrememberedMutableState")
 @Composable
 internal fun ColumnScope.CenterImage(
     image: Uri,
     boundingBoxes: ImmutableList<BoundingBox>,
-    onSizeChangedImage: (ByteArray) -> Unit
+    onSizeChangedImage: (Int, Int) -> Unit,
 ) {
-    val context = LocalContext.current
-    var imageSize by remember { mutableStateOf(IntSize(0, 0)) }
-
-    LaunchedEffect(imageSize) {
-        if (imageSize.width > 0 && imageSize.height > 0) {
-            val byteArrayImage = image.resizedByteArray(context, imageSize.width, imageSize.height)
-            onSizeChangedImage(byteArrayImage)
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -62,7 +42,11 @@ internal fun ColumnScope.CenterImage(
     ) {
         CoilImage(
             modifier = Modifier
-                .onSizeChanged { size -> imageSize = size }
+                .onSizeChanged { size ->
+                    if (size.height != 0 && size.width != 0) {
+                        onSizeChangedImage(size.width, size.height)
+                    }
+                }
                 .drawWithContent {
                     drawContent()
                     drawIntoCanvas { canvas ->
@@ -109,7 +93,7 @@ private fun Preview() {
                         height = 100
                     )
                 ).toImmutableList(),
-                onSizeChangedImage = { }
+                onSizeChangedImage = { _, _ -> }
             )
         }
     }
