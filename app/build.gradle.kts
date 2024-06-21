@@ -2,6 +2,7 @@ plugins {
     id("ham.icec.android.application")
     id("ham.icec.android.application.compose")
     id("ham.icec.android.hilt")
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -53,6 +54,9 @@ dependencies {
     ksp(libs.hilt.compiler)
     androidTestImplementation(libs.hilt.testing)
     kspAndroidTest(libs.hilt.compiler)
+
+    // serialization
+    implementation(libs.kotlinx.serialization.json)
 
     // unit test
     testImplementation(libs.junit)

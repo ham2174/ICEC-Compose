@@ -2,7 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 java {
@@ -20,4 +21,5 @@ dependencies {
     implementation(libs.javax.inject)
     implementation(libs.kotlin)
     implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
 }
