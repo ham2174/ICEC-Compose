@@ -19,12 +19,12 @@ agp = "8.3.2"
 ksp = "2.0.0-1.0.22"
 
 # android
-coreKtx = "1.12.0"
-lifecycle = "2.7.0"
+coreKtx = "1.13.1"
+lifecycle = "2.8.2"
 
 # compose
-activityCompose = "1.8.2"
-composeBom = "2024.04.00"
+activityCompose = "1.9.0"
+composeBom = "2024.06.00"
 
 # dagger hilt
 daggerHilt = "2.51.1"
@@ -37,7 +37,7 @@ navigation = "2.7.7"
 room = "2.6.1"
 
 # data store
-dataStore = "1.0.0"
+dataStore = "1.1.1"
 protobuf = "3.25.2"
 protobufPlugin = "0.9.4"
 
@@ -78,8 +78,8 @@ mockk = "1.13.9"
 junit5Plugin = "1.10.0.0"
 junit5Jupiter = "5.10.1"
 junit5Version = "1.4.0"
-appcompat = "1.6.1"
-material = "1.11.0"
+appcompat = "1.7.0"
+material = "1.12.0"
 
 [libraries]
 # build-conventions
