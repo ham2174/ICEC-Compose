@@ -20,10 +20,6 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
-    }
-
     hilt {
         enableAggregatingTask = true
     }
