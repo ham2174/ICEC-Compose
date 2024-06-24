@@ -18,7 +18,7 @@ import com.ham.icec.compose.designsystem.theme.IcecTheme
 
 @Composable
 fun IcecTopBarTrailingButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     background: Color,
     text: String,
     textColor: Color,
@@ -30,7 +30,7 @@ fun IcecTopBarTrailingButton(
                 color = background,
                 shape = RoundedCornerShape(20.dp)
             )
-            .clickableSingleNoRipple { onclick() }
+            .clickableSingleNoRipple(onClick = onclick)
             .clip(RoundedCornerShape(20.dp))
             .padding(horizontal = 14.5f.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center

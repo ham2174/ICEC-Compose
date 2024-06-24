@@ -67,9 +67,7 @@ internal fun GalleryScreen(
         IcecTopBar(
             leadingContent = {
                 Icon(
-                    modifier = Modifier.clickableSingleNoRipple(
-                        onClick = onPrevious
-                    ),
+                    modifier = Modifier.clickableSingleNoRipple(onClick = onPrevious),
                     painter = painterResource(id = R.drawable.ic_close_32),
                     contentDescription = "Close",
                     tint = IcecTheme.colors.iconColor

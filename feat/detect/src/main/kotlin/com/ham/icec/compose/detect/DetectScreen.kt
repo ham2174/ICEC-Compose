@@ -96,7 +96,7 @@ fun DetectScreen(
             IcecTopBar(
                 leadingContent = {
                     Icon(
-                        modifier = Modifier.clickableSingleNoRipple { onPreviousStep() },
+                        modifier = Modifier.clickableSingleNoRipple(onClick = onPreviousStep),
                         painter = painterResource(id = R.drawable.ic_arrow_left_32),
                         contentDescription = "Back",
                         tint = IcecTheme.colors.iconColor
