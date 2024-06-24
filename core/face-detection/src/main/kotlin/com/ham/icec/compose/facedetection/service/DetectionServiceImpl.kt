@@ -41,10 +41,9 @@ class DetectionServiceImpl @Inject constructor(
                 .addOnCanceledListener {
                     continuation.cancel()
                 }
-
-            if (continuation.isCompleted) {
-                this.close()
-            }
+                .addOnCompleteListener { _ ->
+                    this.close()
+                }
 
             continuation.invokeOnCancellation {
                 this.close()
