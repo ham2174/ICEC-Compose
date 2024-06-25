@@ -10,4 +10,8 @@ sealed class DetectEvent {
 
     data class OnClickDetectedFaceImage(val detectedFaces: DetectedImage) : DetectEvent()
 
+    data object OnNextStep : DetectEvent()
+
+    data object OnPreviousStep : DetectEvent()
+
 }

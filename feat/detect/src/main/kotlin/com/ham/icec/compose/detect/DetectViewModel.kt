@@ -61,12 +61,27 @@ class DetectViewModel @Inject constructor(
         }
     }
 
+    fun onNextStep() {
+        viewModelScope.launch {
+            _event.emit(DetectEvent.OnNextStep)
+        }
+    }
+
+    fun onPreviousStep() {
+        viewModelScope.launch {
+            _event.emit(DetectEvent.OnPreviousStep)
+        }
+    }
+
     private fun eventHandler(event: DetectEvent) {
         when (event) {
+            is DetectEvent.OnNextStep -> sideEffectHandler(DetectSideEffect.NavigateToMosaic)
+            is DetectEvent.OnPreviousStep -> sideEffectHandler(DetectSideEffect.NavigateToHome)
             is DetectEvent.OnSizeChangedImage -> sideEffectHandler(DetectSideEffect.ResizedImage(event.width, event.height))
             is DetectEvent.OnDetectImage -> detectImage(event.image)
             is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
             is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
+
         }
     }
 
@@ -126,6 +141,8 @@ class DetectViewModel @Inject constructor(
                 is DetectSideEffect.ResizedImage -> _sideEffect.emit(
                     DetectSideEffect.ResizedImage(effect.width, effect.height)
                 )
+                is DetectSideEffect.NavigateToMosaic -> _sideEffect.emit(DetectSideEffect.NavigateToMosaic)
+                is DetectSideEffect.NavigateToHome -> _sideEffect.emit(DetectSideEffect.NavigateToHome)
             }
         }
     }
