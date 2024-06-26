@@ -15,7 +15,8 @@ private const val NO_IMAGE_STRING_URI = "no image string uri"
 private const val NO_BOUNDING_BOXES_STRING = "no bounding boxes string"
 
 fun NavGraphBuilder.mosaicScreen(
-
+    onNextStep: () -> Unit,
+    onPreviousStep: () -> Unit,
 ) {
     composable(
         route = MOSAIC_ROUTE,
@@ -33,12 +34,14 @@ fun NavGraphBuilder.mosaicScreen(
         val encodeBoundingBoxes =
             backStackEntry.arguments?.getString(BOUNDING_BOXES_KEY) ?: NO_BOUNDING_BOXES_STRING
 
-        val originalImage = encodeImage.toUri()
+        val uriImage = encodeImage.toUri()
         val boundingBoxes = Json.decodeFromString<List<BoundingBox>>(encodeBoundingBoxes)
 
         MosaicRoute(
-            image = originalImage,
-            boundingBox = boundingBoxes
+            image = uriImage,
+            boundingBoxes = boundingBoxes,
+            onNextStep = onNextStep,
+            onPreviousStep = onPreviousStep
         )
     }
 }

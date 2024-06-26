@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Icec Compose</string>
     <string name="next">다음</string>
+    <string name="save">저장</string>
     <string name="all_select">전체선택</string>
     <string name="all_unselect">전체해제</string>
     <string name="fast_detection">빠른 검출</string>

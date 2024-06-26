@@ -38,7 +38,10 @@ fun IcecNavHost(
                 onNavigateToHome = ::navigateToHome,
                 onNavigateToMosaic = ::navigateToDetect
             )
-            mosaicScreen()
+            mosaicScreen(
+                onPreviousStep = { popBackStack() },
+                onNextStep = { } // TODO : 결과 화면 구현
+            )
             detectScreen(
                 onPreviousStep = ::navigateToHome,
                 onNextStep = ::navigateToMosaic,

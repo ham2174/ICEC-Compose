@@ -12,8 +12,50 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MosaicViewModel @Inject constructor(
-    // TODO : ML kit 로 모자이크 된 얼굴 이미지 리스트 불러오기
+
 ) : ViewModel() {
 
+    private val _state = MutableStateFlow(MosaicState())
+    val state = _state.asStateFlow()
+
+    private val _event = MutableSharedFlow<MosaicEvent>()
+
+    private val _sideEffect = MutableSharedFlow<MosaicSideEffect>()
+    val sideEffect = _sideEffect.asSharedFlow()
+
+    init {
+        viewModelScope.launch {
+            _event.collect { event ->
+                eventHandler(event)
+            }
+        }
+    }
+
+    fun onSizedChangedImage(width: Int, height: Int) {
+        if (!state.value.isResized) {
+            viewModelScope.launch {
+                _event.emit(MosaicEvent.OnSizedChangedImage(width, height))
+            }
+        }
+    }
+
+    private fun eventHandler(event: MosaicEvent) {
+        when (event) {
+            is MosaicEvent.OnSizedChangedImage -> {
+                sideEffectHandler(MosaicSideEffect.ResizedImage(event.width, event.height))
+            }
+        }
+    }
+
+    private fun sideEffectHandler(sideEffect: MosaicSideEffect) {
+        viewModelScope.launch {
+            when (sideEffect) {
+                is MosaicSideEffect.ResizedImage -> {
+                    _sideEffect.emit(MosaicSideEffect.ResizedImage(sideEffect.width, sideEffect.height))
+                    _state.value = state.value.copy(isResized = true)
+                }
+            }
+        }
+    }
 
 }
