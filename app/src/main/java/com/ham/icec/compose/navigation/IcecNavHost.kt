@@ -58,9 +58,7 @@ fun NavController.navigateToMosaic(imageUri: String, boundingBoxes: List<Boundin
         MOSAIC_ROUTE
             .replace("{$DETECTED_IMAGE_KEY}", encodingUri)
             .replace("{$BOUNDING_BOXES_KEY}", encodingBoundingBox)
-    ) {
-        restoreState = true
-    }
+    )
 }
 
 fun NavController.navigateToGallery() = navigate(GALLERY_ROUTE)
