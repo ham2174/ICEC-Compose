@@ -11,6 +11,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.utilAndroid)
+
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serialization.json)
 }
