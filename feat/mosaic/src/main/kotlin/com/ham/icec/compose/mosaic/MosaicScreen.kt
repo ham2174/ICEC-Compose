@@ -2,10 +2,10 @@ package com.ham.icec.compose.mosaic
 
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +25,8 @@ import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.mosaic.component.BottomFrame
+import com.ham.icec.compose.mosaic.component.EffectMode
+import com.ham.icec.compose.mosaic.component.EffectSlider
 import com.ham.icec.compose.mosaic.extension.applyMosaic
 import com.ham.icec.compose.ui.common.CenterImageFrame
 import com.ham.icec.compose.ui.common.IcecTopBar
@@ -44,8 +46,14 @@ fun MosaicRoute(
     MosaicScreen(
         image = image,
         boundingBoxes = boundingBoxes,
+        position = state.sliderPosition,
+        effectMode = state.effectMode,
         onNextStep = onNextStep,
-        onPreviousStep = onPreviousStep
+        onPreviousStep = onPreviousStep,
+        onEffectValueChange = viewModel::onEffectValueChange,
+        onInitEffectValue = viewModel::onInitEffectValue,
+        onClickMosaic = viewModel::onClickMosaic,
+        onClickBlur = viewModel::onClickBlur
     )
 }
 
@@ -53,8 +61,14 @@ fun MosaicRoute(
 private fun MosaicScreen(
     image: Uri,
     boundingBoxes: List<BoundingBox>,
+    position: Float,
+    effectMode: EffectMode,
     onNextStep: () -> Unit,
-    onPreviousStep: () -> Unit
+    onPreviousStep: () -> Unit,
+    onEffectValueChange: (Float) -> Unit,
+    onInitEffectValue: () -> Unit,
+    onClickMosaic: () -> Unit,
+    onClickBlur: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         IcecTopBar(
@@ -85,18 +99,24 @@ private fun MosaicScreen(
                 previewPlaceholder = painterResource(id = R.drawable.sample_img),
                 success = { imageState, _ ->
                     imageState.imageBitmap?.let { imageBitmap ->
-                        val mosaicImageBitmap = BitmapPainter(
-                            image = imageBitmap.applyMosaic(
-                                boundingBoxes,
-                                20
-                            ).asImageBitmap()
-                        )
+                        when (effectMode) {
+                            EffectMode.BLUR -> {
+                                // TODO : 블러 이펙트 구현
+                            }
+                            EffectMode.MOSAIC -> { // TODO : 모자이크 이펙트 최적화
+                                val mosaicImageBitmap = BitmapPainter(
+                                    image = imageBitmap.applyMosaic(
+                                        boundingBoxes,
+                                        position.toInt()
+                                    ).asImageBitmap()
+                                )
 
-                        Image(
-                            painter = mosaicImageBitmap,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                                Image(
+                                    painter = mosaicImageBitmap,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
                     }
                 },
                 failure = {
@@ -111,10 +131,19 @@ private fun MosaicScreen(
 
         BottomFrame(
             modifier = Modifier.padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            // TODO : 샘플 이미지로 모자이크 / 블러 버튼 구현 (직접 생성)
-            // TODO : 슬라이더 구현
-            // TODO : 컨텐츠 안쪽 레이아웃 구현
+            EffectMode(
+                effectState = effectMode,
+                onClickMosaic = onClickMosaic,
+                onClickBlur = onClickBlur
+            )
+
+            EffectSlider(
+                position = position,
+                onInitEffectValue = onInitEffectValue,
+                onEffectValueChange = onEffectValueChange
+            )
         }
     }
 }

@@ -24,10 +24,10 @@ internal fun ImageBitmap.applyMosaic(
 
         for (x in left until right step pixelSize) {
             for (y in top until bottom step pixelSize) {
-                val pixel = mosaicBitmap.getPixel(x, y)
-                val rect = Rect(x, y, x + pixelSize, y + pixelSize)
-                paint.color = pixel
-                canvas.drawRect(rect, paint)
+                val pixel = mosaicBitmap.getPixel(x, y) // 지정된 좌표의 픽셀 색상 가져오기
+                val rect = Rect(x, y, x + pixelSize, y + pixelSize) // 사각형 영역 생성
+                paint.color = pixel // 페인트 색상 설정
+                canvas.drawRect(rect, paint) // 사각형 영역에 색상 채우기
             }
         }
     }

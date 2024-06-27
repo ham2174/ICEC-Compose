@@ -31,31 +31,49 @@ class MosaicViewModel @Inject constructor(
         }
     }
 
-    fun onSizedChangedImage(width: Int, height: Int) {
-        if (!state.value.isResized) {
-            viewModelScope.launch {
-                _event.emit(MosaicEvent.OnSizedChangedImage(width, height))
-            }
+    fun onEffectValueChange(value: Float) {
+        viewModelScope.launch {
+            _event.emit(MosaicEvent.OnEffectValueChange(value))
+        }
+    }
+
+    fun onInitEffectValue() {
+        viewModelScope.launch {
+            _event.emit(MosaicEvent.OnInitEffectValue(DEFAULT_EFFECT_VALUE))
+        }
+    }
+
+    fun onClickMosaic() {
+        viewModelScope.launch {
+            _event.emit(MosaicEvent.OnClickMosaic)
+        }
+    }
+
+    fun onClickBlur() {
+        viewModelScope.launch {
+            _event.emit(MosaicEvent.OnClickBlur)
         }
     }
 
     private fun eventHandler(event: MosaicEvent) {
         when (event) {
-            is MosaicEvent.OnSizedChangedImage -> {
-                sideEffectHandler(MosaicSideEffect.ResizedImage(event.width, event.height))
-            }
+            is MosaicEvent.OnEffectValueChange -> changeSliderValue(event.value)
+            is MosaicEvent.OnInitEffectValue -> changeSliderValue(event.value)
+            is MosaicEvent.OnClickMosaic -> changeEffectMode(EffectMode.MOSAIC)
+            is MosaicEvent.OnClickBlur -> changeEffectMode(EffectMode.BLUR)
         }
     }
 
-    private fun sideEffectHandler(sideEffect: MosaicSideEffect) {
-        viewModelScope.launch {
-            when (sideEffect) {
-                is MosaicSideEffect.ResizedImage -> {
-                    _sideEffect.emit(MosaicSideEffect.ResizedImage(sideEffect.width, sideEffect.height))
-                    _state.value = state.value.copy(isResized = true)
-                }
-            }
-        }
+    private fun changeSliderValue(value: Float) {
+        _state.value = state.value.copy(sliderPosition = value)
+    }
+
+    private fun changeEffectMode(effectMode: EffectMode) {
+        _state.value = state.value.copy(effectMode = effectMode)
+    }
+
+    companion object {
+        private const val DEFAULT_EFFECT_VALUE = 50f
     }
 
 }

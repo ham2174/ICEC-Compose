@@ -1,7 +1,7 @@
 package com.ham.icec.compose.mosaic
 
 data class MosaicState(
-    val isResized: Boolean = false,
+    val sliderPosition: Float = 20f,
     val effectMode: EffectMode = EffectMode.MOSAIC,
 )
 
