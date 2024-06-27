@@ -1,5 +1,6 @@
 package com.ham.icec.compose.designsystem.theme
 
+import androidx.compose.material3.SliderColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -27,6 +28,7 @@ data class IcecColors(
     val btnBg3: Color,
     val btnStroke: Color,
     val imgBg1: Color,
+    val sliderColors: SliderColors
 ) {
     companion object {
         @Composable
@@ -50,6 +52,18 @@ data class IcecColors(
             btnBg3 = colorResource(id = R.color.grey1),
             btnStroke = colorResource(id = R.color.grey2),
             imgBg1 = colorResource(id = R.color.grey1),
+            sliderColors = SliderColors(
+                thumbColor = colorResource(id = R.color.white),
+                activeTrackColor = colorResource(id = R.color.main),
+                activeTickColor = colorResource(id = R.color.main),
+                inactiveTrackColor = colorResource(id = R.color.grey3),
+                inactiveTickColor = colorResource(id = R.color.grey3),
+                disabledThumbColor = colorResource(id = R.color.grey1),
+                disabledActiveTrackColor = colorResource(id = R.color.main),
+                disabledActiveTickColor = colorResource(id = R.color.main),
+                disabledInactiveTrackColor = colorResource(id = R.color.grey3),
+                disabledInactiveTickColor = colorResource(id = R.color.grey3)
+            )
         )
 
         @Composable
@@ -73,6 +87,18 @@ data class IcecColors(
             btnBg3 = colorResource(id = R.color.white),
             btnStroke = colorResource(id = R.color.grey6),
             imgBg1 = colorResource(id = R.color.grey5),
+            sliderColors = SliderColors(
+                thumbColor = colorResource(id = R.color.white),
+                activeTrackColor = colorResource(id = R.color.main),
+                activeTickColor = colorResource(id = R.color.main),
+                inactiveTrackColor = colorResource(id = R.color.grey3),
+                inactiveTickColor = colorResource(id = R.color.grey3),
+                disabledThumbColor = colorResource(id = R.color.grey1),
+                disabledActiveTrackColor = colorResource(id = R.color.main),
+                disabledActiveTickColor = colorResource(id = R.color.main),
+                disabledInactiveTrackColor = colorResource(id = R.color.grey3),
+                disabledInactiveTickColor = colorResource(id = R.color.grey3)
+            )
         )
     }
 }
