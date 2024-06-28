@@ -73,7 +73,7 @@ class MosaicViewModel @Inject constructor(
     }
 
     companion object {
-        private const val DEFAULT_EFFECT_VALUE = 50f
+        private const val DEFAULT_EFFECT_VALUE = 20f
     }
 
 }
