@@ -51,9 +51,9 @@ internal fun AllSelectButton(
     ) {
         Text(
             text = if (isEmptyList) {
-                stringResource(id = R.string.all_select)
+                stringResource(id = R.string.all_select_string)
             } else {
-                stringResource(id = R.string.all_unselect)
+                stringResource(id = R.string.all_unselect_string)
             },
             style = IcecTheme.typography.b2,
             color = if (isSystemInDarkTheme()) {

@@ -134,7 +134,7 @@ fun DetectScreen(
                             }
                         ),
                         background = IcecTheme.colors.btnBg1,
-                        text = stringResource(id = R.string.next),
+                        text = stringResource(id = R.string.next_string),
                         textColor = IcecTheme.colors.sub,
                         onclick = onNextStep
                     )

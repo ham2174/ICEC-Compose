@@ -83,7 +83,7 @@ private fun MosaicScreen(
             trailingContent = {
                 IcecTopBarTrailingButton(
                     background = IcecTheme.colors.btnBg2,
-                    text = stringResource(id = R.string.save),
+                    text = stringResource(id = R.string.save_string),
                     textColor = IcecTheme.colors.white,
                     onclick = onNextStep
                 )

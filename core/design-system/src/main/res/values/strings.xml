@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Icec Compose</string>
-    <string name="next">다음</string>
-    <string name="save">저장</string>
-    <string name="all_select">전체선택</string>
-    <string name="all_unselect">전체해제</string>
-    <string name="fast_detection">빠른 검출</string>
-    <string name="performance_detection">정밀 검출</string>
-    <string name="detection_mode">검출 모드</string>
+    
+    <!-- feat:detect -->
+    <string name="all_select_string">전체선택</string>
+    <string name="all_unselect_string">전체해제</string>
+    <string name="next_string">다음</string>
+    
+    <!-- feat:mosaic -->
+    <string name="mosaic_string">모자이크</string>
+    <string name="blur_string">블러</string>
+    <string name="effect_strength_string">효과 강도</string>
+    <string name="save_string">저장</string>
 </resources>
