@@ -1,19 +1,23 @@
 package com.ham.icec.compose.mosaic.component
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
@@ -29,82 +33,77 @@ internal fun EffectMode(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        MosaicButton(
+        EffectButton(
             isSelected = effectState == EffectMode.MOSAIC,
-            onClickMosaic = onClickMosaic
+            onClick = onClickMosaic,
+            text = stringResource(id = R.string.mosaic_string)
         )
 
-        Spacer(modifier = Modifier.width(1.dp))
-
-        BlurButton(
+        EffectButton(
             isSelected = effectState == EffectMode.BLUR,
-            onClickBlur = onClickBlur
+            onClick = onClickBlur,
+            text = stringResource(id = R.string.blur_string)
         )
     }
 }
 
 @Composable
-internal fun MosaicButton(
+internal fun EffectButton(
     modifier: Modifier = Modifier,
     isSelected: Boolean,
-    onClickMosaic: () -> Unit,
+    onClick: () -> Unit,
+    text: String
 ) {
-    Card(
+    Box(
         modifier = modifier
             .sizeIn(
-                minWidth = 68.dp,
-                minHeight = 68.dp,
+                minWidth = 100.dp,
+                minHeight = 100.dp,
                 maxWidth = 128.dp,
                 maxHeight = 128.dp
-            ),
-        border = if (isSelected) {
-            BorderStroke(
-                width = 2.dp,
-                color = IcecTheme.colors.sub
             )
-        } else {
-            null
-        },
-        shape = RoundedCornerShape(8.dp),
-        onClick = onClickMosaic
+            .background(
+                color = if (isSelected) {
+                    IcecTheme.colors.sub
+                } else {
+                    IcecTheme.colors.btnBg3
+                },
+                shape = RoundedCornerShape(20.dp)
+            )
+            .border(
+                width = 1.dp,
+                color = IcecTheme.colors.btnStroke,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.sample_img), // TODO : 모자이크 효과 추가
-            contentScale = ContentScale.Crop,
-            contentDescription = "Mosaic",
+        Text(
+            text = text,
+            style = IcecTheme.typography.h2,
+            color = if (isSystemInDarkTheme()) {
+                IcecTheme.colors.white
+            } else {
+                if (isSelected) {
+                    IcecTheme.colors.white
+                } else {
+                    IcecTheme.colors.black
+                }
+            },
         )
     }
 }
 
+@Preview(name = "31", widthDp = 360, heightDp = 800, apiLevel = 31, uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "30", widthDp = 360, heightDp = 800, apiLevel = 30)
 @Composable
-internal fun BlurButton(
-    modifier: Modifier = Modifier,
-    isSelected: Boolean,
-    onClickBlur: () -> Unit,
-) {
-    Card(
-        modifier = modifier
-            .sizeIn(
-                minWidth = 68.dp,
-                minHeight = 68.dp,
-                maxWidth = 128.dp,
-                maxHeight = 128.dp
-            ),
-        border = if (isSelected) {
-            BorderStroke(
-                width = 2.dp,
-                color = IcecTheme.colors.sub
-            )
-        } else {
-            null
-        },
-        shape = RoundedCornerShape(8.dp),
-        onClick = onClickBlur
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.sample_img), // TODO : 블러 효과 추가
-            contentScale = ContentScale.Crop,
-            contentDescription = "Blur",
+private fun Preview() {
+    IcecTheme {
+        EffectMode(
+            effectState = EffectMode.MOSAIC,
+            onClickMosaic = { },
+            onClickBlur = { }
         )
     }
 }
