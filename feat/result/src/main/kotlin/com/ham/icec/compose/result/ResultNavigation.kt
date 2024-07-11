@@ -11,7 +11,7 @@ const val MOSAIC_IMAGE_KEY = "uri"
 private const val NO_IMAGE_STRING_URI = "no image string uri"
 
 fun NavGraphBuilder.resultScreen(
-
+    onPrevious: () -> Unit
 ) {
     composable(
         route = RESULT_ROUTE,
@@ -23,7 +23,8 @@ fun NavGraphBuilder.resultScreen(
             backStackEntry.arguments?.getString(MOSAIC_IMAGE_KEY) ?: NO_IMAGE_STRING_URI
 
         ResultRoute(
-            image = imageUri.toUri()
+            image = imageUri.toUri(),
+            onPrevious = onPrevious
         )
     }
 }
