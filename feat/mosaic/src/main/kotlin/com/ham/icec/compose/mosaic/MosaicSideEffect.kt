@@ -2,6 +2,6 @@ package com.ham.icec.compose.mosaic
 
 sealed class MosaicSideEffect {
 
-    data class ResizedImage(val width: Int, val height: Int) : MosaicSideEffect()
+    data class NavigateToResult(val imageUriString: String) : MosaicSideEffect()
 
 }

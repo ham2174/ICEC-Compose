@@ -1,7 +1,6 @@
 package com.ham.icec.compose.mosaic
 
 import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,7 +25,7 @@ import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.mosaic.component.BottomFrame
 import com.ham.icec.compose.mosaic.component.EffectMode
 import com.ham.icec.compose.mosaic.component.EffectSlider
-import com.ham.icec.compose.mosaic.extension.applyMosaic
+import com.ham.icec.compose.mosaic.component.MosaicImage
 import com.ham.icec.compose.ui.common.CenterImageFrame
 import com.ham.icec.compose.ui.common.IcecTopBar
 import com.skydoves.landscapist.ImageOptions
@@ -38,37 +36,49 @@ fun MosaicRoute(
     viewModel: MosaicViewModel = hiltViewModel(),
     image: Uri,
     boundingBoxes: List<BoundingBox>,
-    onNextStep: () -> Unit,
+    onNextStep: (String) -> Unit,
     onPreviousStep: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(viewModel) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                is MosaicSideEffect.NavigateToResult -> {
+                    onNextStep(sideEffect.imageUriString)
+                }
+            }
+        }
+    }
+
     MosaicScreen(
-        image = image,
+        originalImage = image,
         boundingBoxes = boundingBoxes,
-        position = state.sliderPosition,
+        sliderPosition = state.sliderPosition,
         effectMode = state.effectMode,
-        onNextStep = onNextStep,
+        onSaveImage = viewModel::onSaveImage,
         onPreviousStep = onPreviousStep,
         onEffectValueChange = viewModel::onEffectValueChange,
         onInitEffectValue = viewModel::onInitEffectValue,
         onClickMosaic = viewModel::onClickMosaic,
-        onClickBlur = viewModel::onClickBlur
+        onClickBlur = viewModel::onClickBlur,
+        onChangeMosaicImage = viewModel::onChangeMosaicImage
     )
 }
 
 @Composable
 private fun MosaicScreen(
-    image: Uri,
+    originalImage: Uri,
     boundingBoxes: List<BoundingBox>,
-    position: Float,
+    sliderPosition: Float,
     effectMode: EffectMode,
-    onNextStep: () -> Unit,
+    onSaveImage: () -> Unit,
     onPreviousStep: () -> Unit,
     onEffectValueChange: (Float) -> Unit,
     onInitEffectValue: () -> Unit,
     onClickMosaic: () -> Unit,
-    onClickBlur: () -> Unit
+    onClickBlur: () -> Unit,
+    onChangeMosaicImage: (ByteArray) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         IcecTopBar(
@@ -85,7 +95,7 @@ private fun MosaicScreen(
                     background = IcecTheme.colors.btnBg2,
                     text = stringResource(id = R.string.save_string),
                     textColor = IcecTheme.colors.white,
-                    onclick = onNextStep
+                    onclick = onSaveImage
                 )
             }
         )
@@ -95,25 +105,18 @@ private fun MosaicScreen(
                 imageOptions = ImageOptions(
                     contentScale = ContentScale.Fit
                 ),
-                imageModel = { image },
+                imageModel = { originalImage },
                 previewPlaceholder = painterResource(id = R.drawable.sample_img),
                 success = { imageState, _ ->
                     imageState.imageBitmap?.let { imageBitmap ->
                         when (effectMode) {
-                            EffectMode.BLUR -> {
-                                // TODO : 블러 이펙트 구현
-                            }
-                            EffectMode.MOSAIC -> { // TODO : 모자이크 이펙트 최적화
-                                val mosaicImageBitmap = BitmapPainter(
-                                    image = imageBitmap.applyMosaic(
-                                        boundingBoxes,
-                                        position.toInt()
-                                    ).asImageBitmap()
-                                )
-
-                                Image(
-                                    painter = mosaicImageBitmap,
-                                    contentDescription = null,
+                            EffectMode.BLUR -> { /* TODO : 블러 이펙트 이미지 구현 */ }
+                            EffectMode.MOSAIC -> {
+                                MosaicImage(
+                                    imageBitmap = imageBitmap,
+                                    pixelSize = sliderPosition,
+                                    boundingBoxes = boundingBoxes,
+                                    onChangeMosaicImage = onChangeMosaicImage
                                 )
                             }
                         }
@@ -140,7 +143,7 @@ private fun MosaicScreen(
             )
 
             EffectSlider(
-                position = position,
+                sliderPosition = sliderPosition,
                 onInitEffectValue = onInitEffectValue,
                 onEffectValueChange = onEffectValueChange
             )

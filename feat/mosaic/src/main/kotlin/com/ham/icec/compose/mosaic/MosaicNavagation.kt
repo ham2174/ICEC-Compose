@@ -15,7 +15,7 @@ private const val NO_IMAGE_STRING_URI = "no image string uri"
 private const val NO_BOUNDING_BOXES_STRING = "no bounding boxes string"
 
 fun NavGraphBuilder.mosaicScreen(
-    onNextStep: () -> Unit,
+    onNextStep: (String) -> Unit,
     onPreviousStep: () -> Unit,
 ) {
     composable(

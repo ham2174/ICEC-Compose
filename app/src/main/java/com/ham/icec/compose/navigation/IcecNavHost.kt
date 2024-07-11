@@ -17,6 +17,9 @@ import com.ham.icec.compose.mosaic.BOUNDING_BOXES_KEY
 import com.ham.icec.compose.mosaic.DETECTED_IMAGE_KEY
 import com.ham.icec.compose.mosaic.MOSAIC_ROUTE
 import com.ham.icec.compose.mosaic.mosaicScreen
+import com.ham.icec.compose.result.MOSAIC_IMAGE_KEY
+import com.ham.icec.compose.result.RESULT_ROUTE
+import com.ham.icec.compose.result.resultScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.net.URLEncoder
@@ -40,12 +43,13 @@ fun IcecNavHost(
             )
             mosaicScreen(
                 onPreviousStep = { popBackStack() },
-                onNextStep = { } // TODO : 결과 화면 구현
+                onNextStep = ::navigateToResult
             )
             detectScreen(
                 onPreviousStep = ::navigateToHome,
                 onNextStep = ::navigateToMosaic,
             )
+            resultScreen()
         }
     }
 }
@@ -72,5 +76,12 @@ fun NavController.navigateToDetect(imageStringUri: String) {
 
     navigate(DETECT_ROUTE.replace("{$IMAGE_KEY}", encodingUri)) {
         popUpTo(GALLERY_ROUTE) { inclusive = true }
+    }
+}
+
+fun NavController.navigateToResult(imageUri: String) {
+    val encodingUri = URLEncoder.encode(imageUri, "UTF-8")
+    navigate(RESULT_ROUTE.replace("{$MOSAIC_IMAGE_KEY}", encodingUri)) {
+        popUpTo(DETECT_ROUTE) { inclusive = true }
     }
 }

@@ -67,7 +67,7 @@ private fun Preview() {
                 )
 
                 EffectSlider(
-                    position = 50f,
+                    sliderPosition = 50f,
                     onInitEffectValue = { },
                     onEffectValueChange = { }
                 )
