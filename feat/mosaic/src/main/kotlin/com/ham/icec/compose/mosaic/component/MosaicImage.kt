@@ -8,25 +8,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.mosaic.extension.applyMosaic
+import com.ham.icec.compose.utilandroid.extension.toByteArray
 
 @Composable
 internal fun MosaicImage(
-    sliderPosition: Float,
     imageBitmap: ImageBitmap,
-    boundingBoxes: List<BoundingBox>
+    pixelSize: Float,
+    boundingBoxes: List<BoundingBox>,
+    onChangeMosaicImage: (ByteArray) -> Unit
 ) {
     var bitmapPainter by remember { mutableStateOf<BitmapPainter?>(null) }
 
-    LaunchedEffect(sliderPosition) {
+    LaunchedEffect(pixelSize) {
         val mosaicImage = imageBitmap.applyMosaic(
             boundingBoxes,
-            sliderPosition.toInt()
+            pixelSize.toInt()
         ).asImageBitmap()
         bitmapPainter = BitmapPainter(mosaicImage)
+        onChangeMosaicImage(mosaicImage.asAndroidBitmap().toByteArray())
     }
 
     bitmapPainter?.let { painter ->

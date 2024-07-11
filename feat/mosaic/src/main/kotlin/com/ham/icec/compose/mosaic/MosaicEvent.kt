@@ -10,4 +10,8 @@ sealed class MosaicEvent {
 
     data object OnClickBlur : MosaicEvent()
 
+    data class OnChangeMosaicImage(val image: ByteArray): MosaicEvent()
+
+    data object OnSaveImage : MosaicEvent()
+
 }

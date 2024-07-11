@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,22 +36,33 @@ fun MosaicRoute(
     viewModel: MosaicViewModel = hiltViewModel(),
     image: Uri,
     boundingBoxes: List<BoundingBox>,
-    onNextStep: () -> Unit,
+    onNextStep: (String) -> Unit,
     onPreviousStep: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                is MosaicSideEffect.NavigateToResult -> {
+                    onNextStep(sideEffect.imageUriString)
+                }
+            }
+        }
+    }
 
     MosaicScreen(
         originalImage = image,
         boundingBoxes = boundingBoxes,
         sliderPosition = state.sliderPosition,
         effectMode = state.effectMode,
-        onNextStep = onNextStep,
+        onSaveImage = viewModel::onSaveImage,
         onPreviousStep = onPreviousStep,
         onEffectValueChange = viewModel::onEffectValueChange,
         onInitEffectValue = viewModel::onInitEffectValue,
         onClickMosaic = viewModel::onClickMosaic,
-        onClickBlur = viewModel::onClickBlur
+        onClickBlur = viewModel::onClickBlur,
+        onChangeMosaicImage = viewModel::onChangeMosaicImage
     )
 }
 
@@ -60,12 +72,13 @@ private fun MosaicScreen(
     boundingBoxes: List<BoundingBox>,
     sliderPosition: Float,
     effectMode: EffectMode,
-    onNextStep: () -> Unit,
+    onSaveImage: () -> Unit,
     onPreviousStep: () -> Unit,
     onEffectValueChange: (Float) -> Unit,
     onInitEffectValue: () -> Unit,
     onClickMosaic: () -> Unit,
-    onClickBlur: () -> Unit
+    onClickBlur: () -> Unit,
+    onChangeMosaicImage: (ByteArray) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         IcecTopBar(
@@ -82,7 +95,7 @@ private fun MosaicScreen(
                     background = IcecTheme.colors.btnBg2,
                     text = stringResource(id = R.string.save_string),
                     textColor = IcecTheme.colors.white,
-                    onclick = onNextStep
+                    onclick = onSaveImage
                 )
             }
         )
@@ -101,8 +114,9 @@ private fun MosaicScreen(
                             EffectMode.MOSAIC -> {
                                 MosaicImage(
                                     imageBitmap = imageBitmap,
+                                    pixelSize = sliderPosition,
                                     boundingBoxes = boundingBoxes,
-                                    sliderPosition = sliderPosition
+                                    onChangeMosaicImage = onChangeMosaicImage
                                 )
                             }
                         }

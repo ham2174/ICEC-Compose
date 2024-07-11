@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.feat.gallery)
     implementation(projects.feat.mosaic)
     implementation(projects.feat.detect)
+    implementation(projects.feat.result)
 
     // core
     implementation(projects.core.designSystem)
