@@ -39,7 +39,7 @@ class GalleryViewModel @Inject constructor(
             }.collect { newImages ->
                 val currentImages = _uiState.value.galleryImages
 
-                if (newImages.size < 20) {
+                if (newImages.size < 30) {
                     _uiState.value = _uiState.value.copy(
                         isLastPage = true,
                         galleryImages = currentImages + newImages
