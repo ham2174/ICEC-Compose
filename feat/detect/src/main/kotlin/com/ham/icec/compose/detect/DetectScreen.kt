@@ -47,6 +47,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun DetectRoute(
     viewModel: DetectViewModel = hiltViewModel(),
     imageUri: Uri,
+    orientation: Long,
     onNextStep: (String, List<BoundingBox>) -> Unit,
     onPreviousStep: () -> Unit
 ) {

@@ -5,4 +5,5 @@ import android.net.Uri
 data class GalleryImageInfo(
     val id: Long = 0,
     val uri: Uri = Uri.EMPTY,
+    val orientation: Long = 0
 )

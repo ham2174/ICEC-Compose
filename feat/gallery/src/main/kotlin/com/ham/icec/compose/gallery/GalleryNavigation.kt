@@ -7,7 +7,7 @@ const val GALLERY_ROUTE = "gallery"
 
 fun NavGraphBuilder.galleryScreen(
     onNavigateToHome: () -> Unit,
-    onNavigateToMosaic: (String) -> Unit
+    onNavigateToMosaic: (uri: String, orientation: Long) -> Unit
 ) {
     composable(route = GALLERY_ROUTE) {
         GalleryRoute(

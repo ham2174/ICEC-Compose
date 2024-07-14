@@ -32,7 +32,8 @@ class GalleryViewModel @Inject constructor(
                     images.map { info ->
                         ContentImage(
                             id = info.id,
-                            stringUri = info.path
+                            stringUri = info.path,
+                            orientation = info.orientation
                         )
                     }
                 }
