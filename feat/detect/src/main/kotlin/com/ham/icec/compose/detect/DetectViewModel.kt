@@ -37,9 +37,9 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun onDetectImage(byteArray: ByteArray) {
+    fun onDetectImage(byteArray: ByteArray, orientation: Long) {
         viewModelScope.launch {
-            _event.emit(DetectEvent.OnDetectImage(byteArray))
+            _event.emit(DetectEvent.OnDetectImage(byteArray, orientation))
         }
     }
 
@@ -78,7 +78,7 @@ class DetectViewModel @Inject constructor(
             is DetectEvent.OnNextStep -> sideEffectHandler(DetectSideEffect.NavigateToMosaic)
             is DetectEvent.OnPreviousStep -> sideEffectHandler(DetectSideEffect.NavigateToHome)
             is DetectEvent.OnSizeChangedImage -> sideEffectHandler(DetectSideEffect.ResizedImage(event.width, event.height))
-            is DetectEvent.OnDetectImage -> detectImage(event.image)
+            is DetectEvent.OnDetectImage -> detectImage(event.image, event.orientation)
             is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
             is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
 
@@ -101,9 +101,9 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    private fun detectImage(image: ByteArray) {
+    private fun detectImage(image: ByteArray, orientation: Long) {
         viewModelScope.launch {
-            getDetectedFaceImagesUseCase(image = image)
+            getDetectedFaceImagesUseCase(image = image, orientation = orientation)
                 .catch {
                     Log.d("에러 발생", it.toString())
                     _uiState.value = _uiState.value.copy(isLoading = false, isDetected = false)

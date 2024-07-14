@@ -60,7 +60,7 @@ fun DetectRoute(
                 is DetectSideEffect.ResizedImage -> {
                     if (!state.isDetected) {
                         imageUri.resizedByteArray(context, effect.width, effect.height).let {
-                            viewModel.onDetectImage(it)
+                            viewModel.onDetectImage(it, orientation)
                         }
                     }
                 }
