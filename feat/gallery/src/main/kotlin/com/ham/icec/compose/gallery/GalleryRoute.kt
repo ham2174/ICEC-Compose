@@ -43,7 +43,7 @@ fun GalleryRoute(
     )
 }
 
-private const val THRESHOLD = 15
+private const val THRESHOLD = 25
 
 @Composable
 internal fun GalleryScreen(
