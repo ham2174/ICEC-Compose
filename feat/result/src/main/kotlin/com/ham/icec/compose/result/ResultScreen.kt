@@ -1,5 +1,6 @@
 package com.ham.icec.compose.result
 
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -26,6 +28,7 @@ import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.result.component.CompletedSnackBar
 import com.ham.icec.compose.ui.common.IcecTopBar
 import com.ham.icec.compose.utilandroid.extension.toBitmap
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun ResultRoute(
@@ -35,6 +38,7 @@ internal fun ResultRoute(
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewmodel.sideEffect.collect { sideEffect ->
@@ -53,7 +57,17 @@ internal fun ResultRoute(
         ResultScreen(
             image = image.toBitmap(context).asImageBitmap(),
             onPrevious = onPrevious,
-            onShare = viewmodel::onShare
+            onShare = {
+                coroutineScope.launch {
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_STREAM, image)
+                        type = "image/*"
+                    }
+                    val chooser = Intent.createChooser(shareIntent, "이미지 공유하기")
+                    context.startActivity(chooser)
+                }
+            }
         )
 
         CompletedSnackBar(hostState = snackBarHostState)
