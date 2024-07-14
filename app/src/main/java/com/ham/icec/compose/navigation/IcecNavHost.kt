@@ -49,7 +49,9 @@ fun IcecNavHost(
                 onPreviousStep = ::navigateToHome,
                 onNextStep = ::navigateToMosaic,
             )
-            resultScreen()
+            resultScreen(
+                onPrevious = { popBackStack() }
+            )
         }
     }
 }
