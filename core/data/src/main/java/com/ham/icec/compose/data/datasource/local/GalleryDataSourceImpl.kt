@@ -14,38 +14,39 @@ class GalleryDataSourceImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : GalleryDataSource {
 
-    override fun fetchGalleryImages(page: Int): Flow<List<GalleryImageInfo>> = flow {
+    override fun fetchMediaStoreImages(page: Int): Flow<List<GalleryImageInfo>> = flow {
         val images = mutableListOf<GalleryImageInfo>()
+        val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(
+            MediaStore.Images.ImageColumns._ID, // 이미지 ID
+        )
+        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC" // 추가된 날짜 내림차순 정렬
 
         context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            arrayOf(MediaStore.Images.Media._ID),
+            uri,
+            projection,
             null,
             null,
-            "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            sortOrder
         )?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            val offset = page * LIMIT_VALUE
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            val limitOffset = page * LIMIT_COUNT
 
-            if (cursor.moveToPosition(offset)) {
-                for (i in 0 until LIMIT_VALUE) {
+            if (cursor.moveToPosition(limitOffset)) {
+                do {
                     val id = cursor.getLong(idColumn)
-                    val imageUri = ContentUris.withAppendedId(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        id
-                    )
+                    val imageUri = ContentUris.withAppendedId(uri, id)
 
                     images.add(GalleryImageInfo(id, imageUri))
-
-                    if(!cursor.moveToNext()) break
-                }
+                } while (cursor.moveToNext() && images.size < LIMIT_COUNT)
             }
         }
+
         emit(images.toList())
     }.onEmpty { emit(emptyList()) }
 
     companion object {
-        private const val LIMIT_VALUE = 20
+        private const val LIMIT_COUNT = 30
     }
 
 }
