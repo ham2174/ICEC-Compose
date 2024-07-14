@@ -5,6 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface GalleryDataSource {
 
-    fun fetchGalleryImages(page: Int): Flow<List<GalleryImageInfo>>
+    fun fetchMediaStoreImages(page: Int): Flow<List<GalleryImageInfo>>
 
 }

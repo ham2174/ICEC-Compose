@@ -13,8 +13,6 @@ class GalleryRepositoryImpl @Inject constructor(
 ) : GalleryRepository {
 
     override fun loadLocalImages(page: Int): Flow<List<Image>> =
-        localImageDataSource.fetchGalleryImages(page = page).map {
-            it.toDomain()
-        }
+        localImageDataSource.fetchMediaStoreImages(page = page).map { it.toDomain() }
 
 }
