@@ -4,7 +4,7 @@ sealed class DetectEvent {
 
     data class OnSizeChangedImage(val width: Int, val height: Int) : DetectEvent()
 
-    data class OnDetectImage(val image: ByteArray) : DetectEvent()
+    data class OnDetectImage(val image: ByteArray, val orientation: Long) : DetectEvent()
 
     data object OnClickAllSelectButton : DetectEvent()
 

@@ -11,5 +11,6 @@ data class GalleryUiState(
 @Stable
 data class ContentImage(
     val id: Long,
-    val stringUri: String
+    val stringUri: String,
+    val orientation: Long
 )

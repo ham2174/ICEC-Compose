@@ -47,6 +47,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun DetectRoute(
     viewModel: DetectViewModel = hiltViewModel(),
     imageUri: Uri,
+    orientation: Long,
     onNextStep: (String, List<BoundingBox>) -> Unit,
     onPreviousStep: () -> Unit
 ) {
@@ -59,7 +60,7 @@ fun DetectRoute(
                 is DetectSideEffect.ResizedImage -> {
                     if (!state.isDetected) {
                         imageUri.resizedByteArray(context, effect.width, effect.height).let {
-                            viewModel.onDetectImage(it)
+                            viewModel.onDetectImage(it, orientation)
                         }
                     }
                 }

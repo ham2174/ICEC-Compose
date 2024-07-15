@@ -30,7 +30,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun GalleryRoute(
     viewModel: GalleryViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
-    onNavigateToMosaic: (String) -> Unit
+    onNavigateToMosaic: (uri: String, orientation: Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -43,7 +43,7 @@ fun GalleryRoute(
     )
 }
 
-private const val THRESHOLD = 15
+private const val THRESHOLD = 25
 
 @Composable
 internal fun GalleryScreen(
@@ -51,7 +51,7 @@ internal fun GalleryScreen(
     isLastPage: Boolean,
     onNextPageImages: () -> Unit,
     onPrevious: () -> Unit,
-    onClickPhoto: (String) -> Unit,
+    onClickPhoto: (uri: String, orientation: Long) -> Unit,
 ) {
     val lazyGridState = rememberLazyGridState()
     val derivedStateOf =
@@ -116,12 +116,12 @@ private fun GalleryScreenDarkPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ContentImage(it.toLong(), "")
+                ContentImage(it.toLong(), "", 0)
             }.toImmutableList(),
             isLastPage = false,
             onNextPageImages = {},
             onPrevious = {},
-            onClickPhoto = {}
+            onClickPhoto = {_, _ -> }
         )
     }
 }
@@ -136,12 +136,12 @@ private fun GalleryScreenLightPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ContentImage(it.toLong(), "")
+                ContentImage(it.toLong(), "", 0)
             }.toImmutableList(),
             isLastPage = false,
             onNextPageImages = {},
             onPrevious = {},
-            onClickPhoto = {}
+            onClickPhoto = {_, _ -> }
         )
     }
 }

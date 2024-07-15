@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface DetectionService {
 
-    fun getFastDetectFaces(image: ByteArray): Flow<List<Rect>>
+    fun getFastDetectFaces(image: ByteArray, orientation: Long): Flow<List<Rect>>
 
-    fun getAccurateDetectFaces(image: ByteArray): Flow<List<Rect>>
+    fun getAccurateDetectFaces(image: ByteArray, orientation: Long): Flow<List<Rect>>
 
 }

@@ -22,7 +22,7 @@ import kotlinx.collections.immutable.ImmutableList
 internal fun GalleryContents(
     lazyGridState: LazyGridState,
     photos: ImmutableList<ContentImage>,
-    onClickPhoto: (String) -> Unit
+    onClickPhoto: (uri: String, orientation: Long) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -39,7 +39,7 @@ internal fun GalleryContents(
             CoilImage(
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .clickableSingle { onClickPhoto(photos.stringUri) },
+                    .clickableSingle{ onClickPhoto(photos.stringUri, photos.orientation) },
                 imageModel = { photos.stringUri.toUri() },
                 previewPlaceholder = painterResource(
                     id = R.drawable.sample_img
