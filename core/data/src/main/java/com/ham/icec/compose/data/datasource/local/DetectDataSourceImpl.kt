@@ -1,6 +1,8 @@
 package com.ham.icec.compose.data.datasource.local
 
+import android.graphics.Bitmap
 import android.graphics.Rect
+import com.ham.icec.compose.facedetection.model.FaceDetectionResult
 import com.ham.icec.compose.facedetection.service.DetectionService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -12,51 +14,57 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class DetectDataSourceImpl @Inject constructor(
-    private val detectionService: DetectionService
+    private val detectionService: DetectionService,
 ) : DetectDataSource {
 
-    override fun getDetectedFaceBoundingBoxes(image: ByteArray, orientation: Long): Flow<List<Rect>> =
+    override fun getFaceBoundingBoxes(
+        bitmap: Bitmap,
+        orientation: Long
+    ): Flow<List<FaceDetectionResult>> =
         combine(
-            detectionService.getFastDetectFaces(image, orientation),
-            detectionService.getAccurateDetectFaces(image, orientation)
+            detectionService.getFastDetectFaces(bitmap, orientation),
+            detectionService.getAccurateDetectFaces(bitmap, orientation)
         ) { fastModeResult, accurateModeResult ->
             val result = MutableList(accurateModeResult.size) { accurateModeResult[it] }
 
             for (fastResult in fastModeResult) {
-                if (!result.any { rect -> isSimilarFace(rect1 = rect, rect2 = fastResult) }) {
-                    result.add(fastResult)
-                }
+                if (!result.any { rect ->
+                    isSimilarFace(
+                        rect1 = rect.boundingBox,
+                        rect2 = fastResult.boundingBox
+                    )
+                }) { result.add(fastResult) }
             }
 
             result.toList()
         }.flowOn(Dispatchers.IO)
 
-    private fun isSimilarFace(rect1: Rect, rect2: Rect): Boolean {
-        val threshold = 0.5 // 50% 이내 차이가 나는 경우 같은 얼굴로 판단
+}
 
-        val centerX1 = rect1.centerX().toDouble()
-        val centerY1 = rect1.centerY().toDouble()
-        val centerX2 = rect2.centerX().toDouble()
-        val centerY2 = rect2.centerY().toDouble()
+private fun isSimilarFace(rect1: Rect, rect2: Rect): Boolean {
+    val threshold = 0.5 // 50% 이내 차이가 나는 경우 같은 얼굴로 판단
 
-        val width1 = rect1.width().toDouble()
-        val height1 = rect1.height().toDouble()
-        val width2 = rect2.width().toDouble()
-        val height2 = rect2.height().toDouble()
+    val centerX1 = rect1.centerX().toDouble()
+    val centerY1 = rect1.centerY().toDouble()
+    val centerX2 = rect2.centerX().toDouble()
+    val centerY2 = rect2.centerY().toDouble()
 
-        val positionDifferenceX = abs(centerX1 - centerX2)
-        val positionDifferenceY = abs(centerY1 - centerY2)
+    val width1 = rect1.width().toDouble()
+    val height1 = rect1.height().toDouble()
+    val width2 = rect2.width().toDouble()
+    val height2 = rect2.height().toDouble()
 
-        val sizeDifferenceWidth = abs(width1 - width2)
-        val sizeDifferenceHeight = abs(height1 - height2)
+    val positionDifferenceX = abs(centerX1 - centerX2)
+    val positionDifferenceY = abs(centerY1 - centerY2)
 
-        val distanceBetweenCenters = sqrt(positionDifferenceX.pow(2) + positionDifferenceY.pow(2))
-        val maxDimension = maxOf(width1, height1, width2, height2)
+    val sizeDifferenceWidth = abs(width1 - width2)
+    val sizeDifferenceHeight = abs(height1 - height2)
 
-        val sizeDifferenceRatio =
-            (sizeDifferenceWidth / maxDimension + sizeDifferenceHeight / maxDimension) / 2
+    val distanceBetweenCenters = sqrt(positionDifferenceX.pow(2) + positionDifferenceY.pow(2))
+    val maxDimension = maxOf(width1, height1, width2, height2)
 
-        return distanceBetweenCenters < threshold * maxDimension && sizeDifferenceRatio < threshold
-    }
+    val sizeDifferenceRatio =
+        (sizeDifferenceWidth / maxDimension + sizeDifferenceHeight / maxDimension) / 2
 
+    return distanceBetweenCenters < threshold * maxDimension && sizeDifferenceRatio < threshold
 }

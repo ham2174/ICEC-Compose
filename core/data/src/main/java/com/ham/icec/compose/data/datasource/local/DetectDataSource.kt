@@ -1,10 +1,14 @@
 package com.ham.icec.compose.data.datasource.local
 
-import android.graphics.Rect
+import android.graphics.Bitmap
+import com.ham.icec.compose.facedetection.model.FaceDetectionResult
 import kotlinx.coroutines.flow.Flow
 
 interface DetectDataSource {
 
-    fun getDetectedFaceBoundingBoxes(image: ByteArray, orientation: Long): Flow<List<Rect>>
+    fun getFaceBoundingBoxes(
+        bitmap: Bitmap,
+        orientation: Long
+    ): Flow<List<FaceDetectionResult>>
 
 }

@@ -1,24 +1,35 @@
 package com.ham.icec.compose.data.detect.repository
 
+import android.content.Context
 import com.ham.icec.compose.data.datasource.local.DetectDataSource
-import com.ham.icec.compose.data.detect.model.toDetectedFace
-import com.ham.icec.compose.domain.detect.model.DetectedFace
+import com.ham.icec.compose.data.detect.model.toBitmap
+import com.ham.icec.compose.data.detect.model.toFaces
+import com.ham.icec.compose.domain.detect.entity.Face
 import com.ham.icec.compose.domain.detect.repository.DetectRepository
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import com.ham.icec.compose.utilandroid.extension.rotateBitmap
-import com.ham.icec.compose.utilandroid.extension.toBitmap
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.single
 import javax.inject.Inject
 
 class DetectRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val detectDataSource: DetectDataSource
 ) : DetectRepository {
 
-    override fun getDetectedFaces(image: ByteArray, orientation: Long): Flow<List<DetectedFace>> =
-        detectDataSource.getDetectedFaceBoundingBoxes(image = image, orientation = orientation)
-            .map { boundingBoxes ->
-                val originalBitmapImage = image.toBitmap().rotateBitmap(orientation.toFloat())
-                boundingBoxes.toDetectedFace(originalImage = originalBitmapImage)
-            }
+    override suspend fun getDetectedFaces(
+        mediaStoreImage: MediaStoreImage
+    ): Result<List<Face>> = runCatching {
+        detectDataSource.getFaceBoundingBoxes(
+            bitmap = mediaStoreImage.path.toBitmap(context),
+            orientation = mediaStoreImage.orientation
+        ).single()
+    }.mapCatching { result ->
+        result.toFaces(
+            originalImage = mediaStoreImage.path.toBitmap(context).rotateBitmap(
+                degrees = mediaStoreImage.orientation.toFloat()
+            )
+        )
+    }
 
 }

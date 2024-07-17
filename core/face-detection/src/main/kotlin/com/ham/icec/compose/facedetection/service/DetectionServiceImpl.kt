@@ -1,12 +1,11 @@
 package com.ham.icec.compose.facedetection.service
 
-import android.graphics.Rect
-import android.util.Log
+import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.ham.icec.compose.utilandroid.extension.toBitmap
+import com.ham.icec.compose.facedetection.model.FaceDetectionResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -22,47 +21,48 @@ class DetectionServiceImpl @Inject constructor(
     @Named("AccurateMode") private val accurateDetectorOptions: FaceDetectorOptions,
 ) : DetectionService {
 
-    override fun getFastDetectFaces(image: ByteArray, orientation: Long): Flow<List<Rect>> = flow {
-        val detector = FaceDetection.getClient(fastDetectorOptions)
-        val result = detector.process(image, orientation)
+    override fun getFastDetectFaces(
+        bitmap: Bitmap,
+        orientation: Long
+    ): Flow<List<FaceDetectionResult>> = flow {
+        val result = FaceDetection.getClient(fastDetectorOptions).process(bitmap, orientation)
 
         emit(result)
     }.flowOn(Dispatchers.Default)
 
-    override fun getAccurateDetectFaces(image: ByteArray, orientation: Long): Flow<List<Rect>> = flow {
-        val detector = FaceDetection.getClient(accurateDetectorOptions)
-        val result = detector.process(image, orientation)
+    override fun getAccurateDetectFaces(
+        bitmap: Bitmap,
+        orientation: Long
+    ): Flow<List<FaceDetectionResult>> = flow {
+        val result = FaceDetection.getClient(accurateDetectorOptions).process(bitmap, orientation)
 
         emit(result)
     }.flowOn(Dispatchers.Default)
 
 }
 
-private suspend fun FaceDetector.process(image: ByteArray, orientation: Long): List<Rect> =
+private suspend fun FaceDetector.process(
+    bitmap: Bitmap,
+    orientation: Long
+): List<FaceDetectionResult> =
     suspendCancellableCoroutine { continuation ->
-        val inputImage = InputImage.fromBitmap(image.toBitmap(), orientation.toInt())
-
-        Log.d("이미지 회전각", inputImage.rotationDegrees.toString())
-        Log.d("이미지 높이", inputImage.height.toString())
-        Log.d("이미지 너비", inputImage.width.toString())
-
+        val inputImage = InputImage.fromBitmap(bitmap, orientation.toInt())
         val task = this.process(inputImage)
 
         task.addOnSuccessListener { faces ->
-            continuation.resume(faces.map {
-                Log.d("바운딩 박스", it.boundingBox.toString())
-                it.boundingBox
+            continuation.resume(faces.mapIndexed { index, face ->
+                FaceDetectionResult(
+                    id = face.trackingId ?: index,
+                    boundingBox = face.boundingBox
+                )
             })
+        }.addOnFailureListener { e ->
+            continuation.resumeWithException(e)
+        }.addOnCanceledListener {
+            continuation.cancel()
+        }.addOnCompleteListener { _ ->
+            this.close()
         }
-            .addOnFailureListener { e ->
-                continuation.resumeWithException(e)
-            }
-            .addOnCanceledListener {
-                continuation.cancel()
-            }
-            .addOnCompleteListener { _ ->
-                this.close()
-            }
 
         continuation.invokeOnCancellation {
             this.close()
