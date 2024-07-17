@@ -1,7 +1,7 @@
 package com.ham.icec.compose.di
 
-import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCase
-import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCaseImpl
+import com.ham.icec.compose.domain.detect.usecase.GetDetectedFacesUseCase
+import com.ham.icec.compose.domain.detect.usecase.GetDetectedFacesUseCaseImpl
 import com.ham.icec.compose.domain.gallery.usecase.GetPagedGalleryImagesUseCase
 import com.ham.icec.compose.domain.gallery.usecase.GetPagedGalleryImagesUseCaseImpl
 import com.ham.icec.compose.domain.mosaic.usecase.SaveEffectedImageUseCase
@@ -21,9 +21,9 @@ abstract class UseCaseModule {
     ): GetPagedGalleryImagesUseCase
 
     @Binds
-    abstract fun bindGetDetectedFaceImagesUseCase(
-        useCaseImpl: GetDetectedFaceImagesUseCaseImpl
-    ): GetDetectedFaceImagesUseCase
+    abstract fun bindGetDetectedFacesUseCase(
+        useCaseImpl: GetDetectedFacesUseCaseImpl
+    ): GetDetectedFacesUseCase
 
     @Binds
     abstract fun bindSaveEffectedImageUseCase(
