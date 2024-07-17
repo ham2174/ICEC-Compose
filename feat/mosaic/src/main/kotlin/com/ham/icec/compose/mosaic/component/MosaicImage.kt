@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
 import com.ham.icec.compose.mosaic.extension.applyMosaic
 import com.ham.icec.compose.utilandroid.extension.toByteArray
 

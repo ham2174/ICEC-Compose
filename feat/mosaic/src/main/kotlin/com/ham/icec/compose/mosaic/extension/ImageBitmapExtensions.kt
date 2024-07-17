@@ -6,7 +6,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
 
 internal fun ImageBitmap.applyMosaic(
     boundingBoxes: List<BoundingBox>,

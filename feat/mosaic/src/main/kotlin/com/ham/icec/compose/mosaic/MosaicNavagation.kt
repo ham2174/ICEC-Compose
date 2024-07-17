@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
 import kotlinx.serialization.json.Json
 
 const val MOSAIC_ROUTE = "mosaic/{imageByteArray}/{boundingBoxes}"

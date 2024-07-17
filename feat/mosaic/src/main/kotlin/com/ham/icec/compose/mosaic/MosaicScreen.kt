@@ -21,7 +21,7 @@ import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.component.IcecTopBarTrailingButton
 import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
 import com.ham.icec.compose.mosaic.component.BottomFrame
 import com.ham.icec.compose.mosaic.component.EffectMode
 import com.ham.icec.compose.mosaic.component.EffectSlider
