@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.ham.icec.compose.utilandroid"
 }
+
+dependencies {
+    implementation(libs.kotlin.coroutines.core)
+}
