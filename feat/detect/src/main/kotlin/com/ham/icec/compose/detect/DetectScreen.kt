@@ -1,7 +1,5 @@
 package com.ham.icec.compose.detect
 
-import android.net.Uri
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -13,17 +11,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ham.icec.compose.designsystem.R
@@ -32,10 +29,11 @@ import com.ham.icec.compose.designsystem.component.IcecTopBarTrailingButton
 import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.component.BottomContents
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import com.ham.icec.compose.ui.common.CenterImageFrame
 import com.ham.icec.compose.ui.common.IcecTopBar
-import com.ham.icec.compose.utilandroid.extension.resizedByteArray
+import com.ham.icec.compose.utilandroid.extension.toByteArray
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
@@ -46,29 +44,23 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun DetectRoute(
     viewModel: DetectViewModel = hiltViewModel(),
-    imageUri: Uri,
-    orientation: Long,
+    mediaStoreImage: MediaStoreImage,
     onNextStep: (String, List<BoundingBox>) -> Unit,
     onPreviousStep: () -> Unit
 ) {
     val context = LocalContext.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var centerImage by remember { mutableStateOf(byteArrayOf(0)) }
 
     LaunchedEffect(Unit) {
+        centerImage = mediaStoreImage.path.toUri().toByteArray(context) ?: byteArrayOf(0)
+
         viewModel.sideEffect.collect { effect ->
             when (effect) {
-                is DetectSideEffect.ResizedImage -> {
-                    if (!state.isDetected) {
-                        imageUri.resizedByteArray(context, effect.width, effect.height).let {
-                            viewModel.onDetectImage(it, orientation)
-                        }
-                    }
-                }
-
                 is DetectSideEffect.NavigateToMosaic -> {
                     onNextStep(
-                        imageUri.toString(),
-                        state.detectedImages
+                        mediaStoreImage.path,
+                        state.detectedFaces
                             .filter { it.isSelected }
                             .map { it.face.boundingBox }
                     )
@@ -77,36 +69,34 @@ fun DetectRoute(
                 is DetectSideEffect.NavigateToHome -> {
                     onPreviousStep()
                 }
+
+                is DetectSideEffect.DrawBoundingBoxesOnMediaStoreImage -> {
+                    centerImage = effect.imageStream.stream
+                }
             }
         }
     }
 
     DetectScreen(
-        centerImage = imageUri,
-        detectedImages = state.detectedImages.toImmutableList(),
-        boundingBoxes = state.detectedImages.map { it.face.boundingBox }.toImmutableList(),
+        centerImage = centerImage,
+        detectedFaces = state.detectedFaces.toImmutableList(),
         isLoading = state.isLoading,
-        isDetected = state.isDetected,
         onNextStep = viewModel::onNextStep,
         onPreviousStep = viewModel::onPreviousStep,
         onClickAllSelect = viewModel::onClickAllSelectButton,
         onClickDetectedFace = viewModel::onClickDetectedFaceImage,
-        onSizeChangedImage = viewModel::onSizeChangedImage
     )
 }
 
 @Composable
 fun DetectScreen(
-    centerImage: Uri,
-    detectedImages: ImmutableList<DetectedImage>,
-    boundingBoxes: ImmutableList<BoundingBox>,
+    centerImage: ByteArray,
+    detectedFaces: ImmutableList<DetectedFaceState>,
     isLoading: Boolean,
-    isDetected: Boolean,
     onNextStep: () -> Unit,
     onPreviousStep: () -> Unit,
     onClickAllSelect: () -> Unit,
-    onClickDetectedFace: (DetectedImage) -> Unit,
-    onSizeChangedImage: (Int, Int) -> Unit
+    onClickDetectedFace: (DetectedFaceState) -> Unit,
 ) {
     Box {
         Column(
@@ -144,44 +134,11 @@ fun DetectScreen(
 
             CenterImageFrame {
                 CoilImage(
-                    previewPlaceholder = painterResource(id = R.drawable.sample_img),
                     imageModel = { centerImage },
+                    previewPlaceholder = painterResource(id = R.drawable.sample_img),
                     imageOptions = ImageOptions(
                         contentScale = ContentScale.Fit
                     ),
-                    success = { imageState, painter ->
-                        if (!isDetected) {
-                            val width = painter.intrinsicSize.width.toInt()
-                            val height = painter.intrinsicSize.height.toInt()
-                            onSizeChangedImage(width, height)
-                        }
-
-                        imageState.imageBitmap?.let { imageBitmap ->
-                            Image(
-                                modifier = Modifier
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawIntoCanvas { canvas ->
-                                            boundingBoxes.forEach { rect ->
-                                                canvas.drawRect(
-                                                    left = rect.left.toFloat(),
-                                                    top = rect.top.toFloat(),
-                                                    right = rect.right.toFloat(),
-                                                    bottom = rect.bottom.toFloat(),
-                                                    paint = Paint().apply {
-                                                        color = Color.Red
-                                                        style = PaintingStyle.Stroke
-                                                        strokeWidth = 5f
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    },
-                                bitmap = imageBitmap,
-                                contentDescription = ""
-                            )
-                        }
-                    },
                     failure = {
                         Text(
                             text = "이미지를 불러올 수 없습니다.",
@@ -193,7 +150,7 @@ fun DetectScreen(
             }
 
             BottomContents(
-                detectedImages = detectedImages,
+                detectedImages = detectedFaces,
                 onClickAllSelect = onClickAllSelect,
                 onClickImage = onClickDetectedFace,
             )

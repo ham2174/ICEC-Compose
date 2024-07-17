@@ -1,24 +1,31 @@
 package com.ham.icec.compose.detect
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ham.icec.compose.domain.detect.usecase.GetDetectedFaceImagesUseCase
+import com.ham.icec.compose.domain.detect.usecase.GetDetectedFacesUseCase
+import com.ham.icec.compose.domain.edit.image.usecase.DrawBoundingBoxesOnMediaStoreImageUseCase
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @HiltViewModel
 class DetectViewModel @Inject constructor(
-    private val getDetectedFaceImagesUseCase: GetDetectedFaceImagesUseCase
+    private val getDetectedFacesUseCase: GetDetectedFacesUseCase,
+    private val drawBoundingBoxesOnMediaStoreImageUseCase: DrawBoundingBoxesOnMediaStoreImageUseCase,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<DetectUiState> = MutableStateFlow(DetectUiState())
@@ -29,23 +36,19 @@ class DetectViewModel @Inject constructor(
     private val _sideEffect: MutableSharedFlow<DetectSideEffect> = MutableSharedFlow()
     val sideEffect = _sideEffect.asSharedFlow()
 
+    private val mediaStoreImage: MediaStoreImage =
+        checkNotNull(savedStateHandle.get<String>(MEDIA_STORE_IMAGE_KEY)?.let { jsonString ->
+            Json.decodeFromString<MediaStoreImage>(jsonString)
+        })
+
     init {
         viewModelScope.launch {
+            detectImage().join()
+            drawBoundingBoxesOnImage().join()
+
             _event.collect { event ->
                 eventHandler(event)
             }
-        }
-    }
-
-    fun onDetectImage(byteArray: ByteArray, orientation: Long) {
-        viewModelScope.launch {
-            _event.emit(DetectEvent.OnDetectImage(byteArray, orientation))
-        }
-    }
-
-    fun onSizeChangedImage(width: Int, height: Int) {
-        viewModelScope.launch {
-            _event.emit(DetectEvent.OnSizeChangedImage(width, height))
         }
     }
 
@@ -55,7 +58,7 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    fun onClickDetectedFaceImage(detectedImage: DetectedImage) {
+    fun onClickDetectedFaceImage(detectedImage: DetectedFaceState) {
         viewModelScope.launch {
             _event.emit(DetectEvent.OnClickDetectedFaceImage(detectedImage))
         }
@@ -74,58 +77,64 @@ class DetectViewModel @Inject constructor(
     }
 
     private fun eventHandler(event: DetectEvent) {
-        when (event) {
-            is DetectEvent.OnNextStep -> sideEffectHandler(DetectSideEffect.NavigateToMosaic)
-            is DetectEvent.OnPreviousStep -> sideEffectHandler(DetectSideEffect.NavigateToHome)
-            is DetectEvent.OnSizeChangedImage -> sideEffectHandler(DetectSideEffect.ResizedImage(event.width, event.height))
-            is DetectEvent.OnDetectImage -> detectImage(event.image, event.orientation)
-            is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
-            is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
-
+        viewModelScope.launch {
+            when (event) {
+                is DetectEvent.OnNextStep -> _sideEffect.emit(DetectSideEffect.NavigateToMosaic)
+                is DetectEvent.OnPreviousStep -> _sideEffect.emit(DetectSideEffect.NavigateToHome)
+                is DetectEvent.OnClickAllSelectButton -> handleSelectAll()
+                is DetectEvent.OnClickDetectedFaceImage -> toggleFaceSelection(event.detectedFaces)
+            }
         }
     }
 
     private fun handleSelectAll() {
-        if (_uiState.value.detectedImages.none { it.isSelected }) {
+        if (_uiState.value.detectedFaces.none { it.isSelected }) {
             _uiState.value = _uiState.value.copy(
-                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                detectedFaces = _uiState.value.detectedFaces.map { detectedImage ->
                     detectedImage.copy(isSelected = true)
                 }
             )
         } else {
             _uiState.value = _uiState.value.copy(
-                detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+                detectedFaces = _uiState.value.detectedFaces.map { detectedImage ->
                     detectedImage.copy(isSelected = false)
                 }
             )
         }
     }
 
-    private fun detectImage(image: ByteArray, orientation: Long) {
-        viewModelScope.launch {
-            getDetectedFaceImagesUseCase(image = image, orientation = orientation)
-                .catch {
+    private fun drawBoundingBoxesOnImage(): Job =
+        CoroutineScope(Dispatchers.Main).launch {
+            drawBoundingBoxesOnMediaStoreImageUseCase(
+                mediaStoreImage = mediaStoreImage,
+                boundingBoxes = _uiState.value.detectedFaces.map { it.face.boundingBox }
+            ).onSuccess { imageStream ->
+                _uiState.value = _uiState.value.copy(isLoading = false)
+                _sideEffect.emit(DetectSideEffect.DrawBoundingBoxesOnMediaStoreImage(imageStream))
+            }.onFailure {
+                Log.d("에러 발생", it.toString())
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
+        }
+
+    private fun detectImage(): Job =
+        CoroutineScope(Dispatchers.IO).launch {
+            getDetectedFacesUseCase(mediaStoreImage = mediaStoreImage)
+                .onSuccess { result ->
+                    _uiState.value = _uiState.value.copy(
+                        detectedFaces = result.map { face -> DetectedFaceState(face = face) },
+                        isDetected = true
+                    )
+                }.onFailure {
                     Log.d("에러 발생", it.toString())
                     _uiState.value = _uiState.value.copy(isLoading = false, isDetected = false)
                 }
-                .onStart {
-                    _uiState.value = _uiState.value.copy(isLoading = true)
-                }
-                .collect { faces ->
-                    _uiState.value = _uiState.value.copy(
-                        detectedImages = faces.map { face ->
-                            DetectedImage(face = face, isSelected = false)
-                        },
-                        isLoading = false,
-                        isDetected = true
-                    )
-                }
         }
-    }
 
-    private fun toggleFaceSelection(detectedFaces: DetectedImage) {
+
+    private fun toggleFaceSelection(detectedFaces: DetectedFaceState) {
         _uiState.value = _uiState.value.copy(
-            detectedImages = _uiState.value.detectedImages.map { detectedImage ->
+            detectedFaces = _uiState.value.detectedFaces.map { detectedImage ->
                 if (detectedImage.face.id == detectedFaces.face.id) {
                     detectedImage.copy(isSelected = !detectedImage.isSelected)
                 } else {
@@ -133,18 +142,6 @@ class DetectViewModel @Inject constructor(
                 }
             }
         )
-    }
-
-    private fun sideEffectHandler(effect: DetectSideEffect) {
-        viewModelScope.launch {
-            when (effect) {
-                is DetectSideEffect.ResizedImage -> _sideEffect.emit(
-                    DetectSideEffect.ResizedImage(effect.width, effect.height)
-                )
-                is DetectSideEffect.NavigateToMosaic -> _sideEffect.emit(DetectSideEffect.NavigateToMosaic)
-                is DetectSideEffect.NavigateToHome -> _sideEffect.emit(DetectSideEffect.NavigateToHome)
-            }
-        }
     }
 
 }

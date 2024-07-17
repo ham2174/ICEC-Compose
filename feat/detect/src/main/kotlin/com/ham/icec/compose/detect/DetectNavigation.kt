@@ -1,18 +1,17 @@
 package com.ham.icec.compose.detect
 
-import androidx.core.net.toUri
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.serialization.json.Json
 
-const val DETECT_ROUTE = "detect/{image}/{orientation}"
-const val IMAGE_KEY = "image"
-const val ORIENTATION_KEY = "orientation"
-private const val NO_IMAGE_STRING_URI = "no image string uri"
-private const val ORIENTATION_ERROR = "orientation error"
+const val DETECT_ROUTE = "detect?mediaStoreImage={mediaStoreImage}"
+const val MEDIA_STORE_IMAGE_KEY = "mediaStoreImage"
+private const val NO_MEDIA_STORE_IMAGE = "no media store image"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun NavGraphBuilder.detectScreen(
@@ -22,23 +21,16 @@ fun NavGraphBuilder.detectScreen(
     composable(
         route = DETECT_ROUTE,
         arguments = listOf(
-            navArgument(IMAGE_KEY) {
+            navArgument(MEDIA_STORE_IMAGE_KEY) {
                 type = NavType.StringType
-                defaultValue = NO_IMAGE_STRING_URI
-            },
-            navArgument(ORIENTATION_KEY) {
-                type = NavType.StringType
-                defaultValue = ORIENTATION_ERROR
             }
         )
     ) { backStackEntry ->
-        val imageStringUri = backStackEntry.arguments?.getString(IMAGE_KEY) ?: NO_IMAGE_STRING_URI
-        val orientation = backStackEntry.arguments?.getString(ORIENTATION_KEY) ?: ORIENTATION_ERROR
-        val originalBitmapImage = imageStringUri.toUri()
+        val mediaStoreImageJson = backStackEntry.arguments?.getString(MEDIA_STORE_IMAGE_KEY) ?: NO_MEDIA_STORE_IMAGE
+        val mediaStoreImage = Json.decodeFromString<MediaStoreImage>(mediaStoreImageJson)
 
         DetectRoute(
-            imageUri = originalBitmapImage,
-            orientation = orientation.toLong(),
+            mediaStoreImage = mediaStoreImage,
             onNextStep = onNextStep,
             onPreviousStep = onPreviousStep
         )

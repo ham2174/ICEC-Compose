@@ -1,11 +1,13 @@
 package com.ham.icec.compose.detect
 
-sealed class DetectSideEffect {
+import com.ham.icec.compose.domain.detect.entity.ImageStream
 
-    data class ResizedImage(val width: Int, val height: Int) : DetectSideEffect()
+sealed class DetectSideEffect {
 
     data object NavigateToHome : DetectSideEffect()
 
     data object NavigateToMosaic : DetectSideEffect()
+
+    data class DrawBoundingBoxesOnMediaStoreImage(val imageStream: ImageStream) : DetectSideEffect()
 
 }

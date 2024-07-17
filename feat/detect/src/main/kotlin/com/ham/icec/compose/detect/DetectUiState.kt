@@ -1,14 +1,17 @@
 package com.ham.icec.compose.detect
 
-import com.ham.icec.compose.domain.detect.model.DetectedFace
+import androidx.compose.runtime.Stable
+import com.ham.icec.compose.domain.detect.entity.Face
 
+@Stable
 data class DetectUiState(
-    val detectedImages: List<DetectedImage> = emptyList(),
+    val detectedFaces: List<DetectedFaceState> = emptyList(),
     val isLoading: Boolean = true,
     val isDetected: Boolean = false
 )
 
-data class DetectedImage(
-    val face: DetectedFace,
-    val isSelected: Boolean
+@Stable
+data class DetectedFaceState(
+    val face: Face = Face.empty(),
+    val isSelected: Boolean = false
 )

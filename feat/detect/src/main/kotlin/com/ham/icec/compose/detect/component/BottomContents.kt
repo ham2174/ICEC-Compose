@@ -32,9 +32,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
-import com.ham.icec.compose.detect.DetectedImage
-import com.ham.icec.compose.domain.detect.model.BoundingBox
-import com.ham.icec.compose.domain.detect.model.DetectedFace
+import com.ham.icec.compose.detect.DetectedFaceState
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.Face
+import com.ham.icec.compose.domain.detect.entity.ImageStream
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
@@ -42,9 +43,9 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun BottomContents(
-    detectedImages: ImmutableList<DetectedImage>,
+    detectedImages: ImmutableList<DetectedFaceState>,
     onClickAllSelect: () -> Unit,
-    onClickImage: (DetectedImage) -> Unit,
+    onClickImage: (DetectedFaceState) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -87,7 +88,7 @@ internal fun BottomContents(
                 key = { detectedFace -> detectedFace.face.id }
             ) { detectedImage ->
                 DetectedFaceImage(
-                    face = detectedImage.face.image,
+                    face = detectedImage.face.faceImage.stream,
                     isSelected = detectedImage.isSelected,
                     onClickImage = { onClickImage(detectedImage) }
                 )
@@ -158,35 +159,35 @@ private fun DetectedFaceImage(
 @Composable
 private fun Preview() {
     val detectedImages = listOf(
-        DetectedImage(
-            face = DetectedFace(
+        DetectedFaceState(
+            face = Face(
                 id = 0,
-                image = ByteArray(0),
-                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
+                faceImage = ImageStream.empty(),
+                boundingBox = BoundingBox.empty()
             ),
             isSelected = true
         ),
-        DetectedImage(
-            face = DetectedFace(
+        DetectedFaceState(
+            face = Face(
                 id = 1,
-                image = ByteArray(1),
-                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
+                faceImage = ImageStream.empty(),
+                boundingBox = BoundingBox.empty()
             ),
             isSelected = true
         ),
-        DetectedImage(
-            face = DetectedFace(
+        DetectedFaceState(
+            face = Face(
                 id = 2,
-                image = ByteArray(2),
-                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
+                faceImage = ImageStream.empty(),
+                boundingBox = BoundingBox.empty()
             ),
             isSelected = false
         ),
-        DetectedImage(
-            face = DetectedFace(
+        DetectedFaceState(
+            face = Face(
                 id = 3,
-                image = ByteArray(3),
-                boundingBox = BoundingBox(0, 0, 0, 0, 0, 0)
+                faceImage = ImageStream.empty(),
+                boundingBox = BoundingBox.empty()
             ),
             isSelected = false
         ),
