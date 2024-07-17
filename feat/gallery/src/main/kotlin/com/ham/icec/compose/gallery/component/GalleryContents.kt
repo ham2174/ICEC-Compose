@@ -14,15 +14,15 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.modifier.clickableSingle
-import com.ham.icec.compose.gallery.ContentImage
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun GalleryContents(
     lazyGridState: LazyGridState,
-    photos: ImmutableList<ContentImage>,
-    onClickPhoto: (uri: String, orientation: Long) -> Unit
+    photos: ImmutableList<MediaStoreImage>,
+    onClickPhoto: (MediaStoreImage) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -35,12 +35,12 @@ internal fun GalleryContents(
         items(
             items = photos,
             key = { item -> item.id }
-        ) { photos ->
+        ) { photo ->
             CoilImage(
                 modifier = Modifier
                     .aspectRatio(1f)
-                    .clickableSingle{ onClickPhoto(photos.stringUri, photos.orientation) },
-                imageModel = { photos.stringUri.toUri() },
+                    .clickableSingle{ onClickPhoto(photo) },
+                imageModel = { photo.path.toUri() },
                 previewPlaceholder = painterResource(
                     id = R.drawable.sample_img
                 ),

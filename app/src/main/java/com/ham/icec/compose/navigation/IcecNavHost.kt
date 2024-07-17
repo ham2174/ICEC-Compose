@@ -1,15 +1,16 @@
 package com.ham.icec.compose.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.ham.icec.compose.detect.DETECT_ROUTE
-import com.ham.icec.compose.detect.IMAGE_KEY
-import com.ham.icec.compose.detect.ORIENTATION_KEY
+import com.ham.icec.compose.detect.MEDIA_STORE_IMAGE_KEY
 import com.ham.icec.compose.detect.detectScreen
-import com.ham.icec.compose.domain.detect.model.BoundingBox
+import com.ham.icec.compose.domain.detect.entity.BoundingBox
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import com.ham.icec.compose.gallery.GALLERY_ROUTE
 import com.ham.icec.compose.gallery.galleryScreen
 import com.ham.icec.compose.home.HOME_ROUTE
@@ -74,15 +75,10 @@ fun NavController.navigateToHome() = navigate(HOME_ROUTE) {
     popUpTo(graph.id)
 }
 
-fun NavController.navigateToDetect(imageStringUri: String, orientation: Long) {
-    val encodingUri = URLEncoder.encode(imageStringUri, "UTF-8")
-
-    navigate(DETECT_ROUTE
-        .replace("{$IMAGE_KEY}", encodingUri)
-        .replace("{$ORIENTATION_KEY}", orientation.toString())
-    ) {
-        popUpTo(GALLERY_ROUTE) { inclusive = true }
-    }
+fun NavController.navigateToDetect(mediaStoreImage: MediaStoreImage) {
+    val encodingUri = Uri.encode(mediaStoreImage.path)
+    val encodingMediaStoreImage = Json.encodeToString(mediaStoreImage.copy(path = encodingUri))
+    navigate(DETECT_ROUTE.replace("{$MEDIA_STORE_IMAGE_KEY}", encodingMediaStoreImage)) { popUpTo(GALLERY_ROUTE) { inclusive = true } }
 }
 
 fun NavController.navigateToResult(imageUri: String) {

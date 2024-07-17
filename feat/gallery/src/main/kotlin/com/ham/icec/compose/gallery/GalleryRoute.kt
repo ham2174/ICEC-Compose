@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
 import com.ham.icec.compose.designsystem.theme.IcecTheme
+import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import com.ham.icec.compose.gallery.component.GalleryContents
 import com.ham.icec.compose.ui.common.IcecTopBar
 import kotlinx.collections.immutable.ImmutableList
@@ -30,7 +31,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun GalleryRoute(
     viewModel: GalleryViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
-    onNavigateToMosaic: (uri: String, orientation: Long) -> Unit
+    onNavigateToMosaic: (MediaStoreImage) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -47,11 +48,11 @@ private const val THRESHOLD = 25
 
 @Composable
 internal fun GalleryScreen(
-    galleryImages: ImmutableList<ContentImage>,
+    galleryImages: ImmutableList<MediaStoreImage>,
     isLastPage: Boolean,
     onNextPageImages: () -> Unit,
     onPrevious: () -> Unit,
-    onClickPhoto: (uri: String, orientation: Long) -> Unit,
+    onClickPhoto: (MediaStoreImage) -> Unit,
 ) {
     val lazyGridState = rememberLazyGridState()
     val derivedStateOf =
@@ -116,12 +117,12 @@ private fun GalleryScreenDarkPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ContentImage(it.toLong(), "", 0)
+                MediaStoreImage(it.toLong(), "", 0)
             }.toImmutableList(),
             isLastPage = false,
             onNextPageImages = {},
             onPrevious = {},
-            onClickPhoto = {_, _ -> }
+            onClickPhoto = {}
         )
     }
 }
@@ -136,12 +137,12 @@ private fun GalleryScreenLightPreview() {
     IcecTheme {
         GalleryScreen(
             galleryImages = List(10) {
-                ContentImage(it.toLong(), "", 0)
+                MediaStoreImage(it.toLong(), "", 0)
             }.toImmutableList(),
             isLastPage = false,
             onNextPageImages = {},
             onPrevious = {},
-            onClickPhoto = {_, _ -> }
+            onClickPhoto = {}
         )
     }
 }

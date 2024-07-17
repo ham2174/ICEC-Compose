@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,15 +27,7 @@ class GalleryViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             page.flatMapConcat { page ->
-                getGalleryImagesUseCase(page = page).map { images ->
-                    images.map { info ->
-                        ContentImage(
-                            id = info.id,
-                            stringUri = info.path,
-                            orientation = info.orientation
-                        )
-                    }
-                }
+                getGalleryImagesUseCase(page = page)
             }.collect { newImages ->
                 val currentImages = _uiState.value.galleryImages
 
