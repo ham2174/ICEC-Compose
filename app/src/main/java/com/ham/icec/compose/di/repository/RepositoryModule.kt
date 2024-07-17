@@ -1,9 +1,11 @@
 package com.ham.icec.compose.di.repository
 
 import com.ham.icec.compose.data.detect.repository.DetectRepositoryImpl
+import com.ham.icec.compose.data.edit.image.repository.ImageEditRepositoryImpl
 import com.ham.icec.compose.data.gallery.repository.GalleryRepositoryImpl
 import com.ham.icec.compose.data.mosaic.repository.MosaicRepositoryImpl
 import com.ham.icec.compose.domain.detect.repository.DetectRepository
+import com.ham.icec.compose.domain.edit.image.repository.ImageEditRepository
 import com.ham.icec.compose.domain.gallery.repository.GalleryRepository
 import com.ham.icec.compose.domain.mosaic.respotitory.MosaicRepository
 import dagger.Binds
@@ -27,5 +29,9 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindMosaicRepository(repository: MosaicRepositoryImpl): MosaicRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEditRepository(repository: ImageEditRepositoryImpl): ImageEditRepository
 
 }

@@ -4,6 +4,8 @@ import com.ham.icec.compose.data.datasource.local.DetectDataSource
 import com.ham.icec.compose.data.datasource.local.DetectDataSourceImpl
 import com.ham.icec.compose.data.datasource.local.GalleryDataSource
 import com.ham.icec.compose.data.datasource.local.GalleryDataSourceImpl
+import com.ham.icec.compose.data.datasource.local.ImageEditDataSource
+import com.ham.icec.compose.data.datasource.local.ImageEditDataSourceImpl
 import com.ham.icec.compose.data.datasource.local.MosaicDataSource
 import com.ham.icec.compose.data.datasource.local.MosaicDataSourceImpl
 import dagger.Binds
@@ -27,4 +29,9 @@ abstract class LocalDataSourcesModule {
     @Binds
     @Singleton
     abstract fun bindsMosaicDataSource(dataSourceImpl: MosaicDataSourceImpl): MosaicDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindsImageEditDataSource(dataSourceImpl: ImageEditDataSourceImpl): ImageEditDataSource
+
 }
