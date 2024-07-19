@@ -5,13 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ham.icec.compose.domain.detect.usecase.GetDetectedFacesUseCase
-import com.ham.icec.compose.domain.edit.image.usecase.DrawBoundingBoxesOnMediaStoreImageUseCase
 import com.ham.icec.compose.domain.gallery.entity.MediaStoreImage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -24,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DetectViewModel @Inject constructor(
     private val getDetectedFacesUseCase: GetDetectedFacesUseCase,
-    private val drawBoundingBoxesOnMediaStoreImageUseCase: DrawBoundingBoxesOnMediaStoreImageUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -42,10 +37,8 @@ class DetectViewModel @Inject constructor(
         })
 
     init {
+        detectImage()
         viewModelScope.launch {
-            detectImage().join()
-            drawBoundingBoxesOnImage().join()
-
             _event.collect { event ->
                 eventHandler(event)
             }
@@ -103,34 +96,24 @@ class DetectViewModel @Inject constructor(
         }
     }
 
-    private fun drawBoundingBoxesOnImage(): Job =
-        CoroutineScope(Dispatchers.Main).launch {
-            drawBoundingBoxesOnMediaStoreImageUseCase(
-                mediaStoreImage = mediaStoreImage,
-                boundingBoxes = _uiState.value.detectedFaces.map { it.face.boundingBox }
-            ).onSuccess { imageStream ->
-                _uiState.value = _uiState.value.copy(isLoading = false)
-                _sideEffect.emit(DetectSideEffect.DrawBoundingBoxesOnMediaStoreImage(imageStream))
-            }.onFailure {
-                Log.d("에러 발생", it.toString())
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            }
-        }
-
-    private fun detectImage(): Job =
-        CoroutineScope(Dispatchers.IO).launch {
+    private fun detectImage() {
+        viewModelScope.launch {
             getDetectedFacesUseCase(mediaStoreImage = mediaStoreImage)
                 .onSuccess { result ->
                     _uiState.value = _uiState.value.copy(
                         detectedFaces = result.map { face -> DetectedFaceState(face = face) },
+                        isLoading = false,
                         isDetected = true
+                    )
+                    _sideEffect.emit(
+                        DetectSideEffect.DrawBoundingBoxesOnMediaStoreImage(result.map { it.boundingBox })
                     )
                 }.onFailure {
                     Log.d("에러 발생", it.toString())
                     _uiState.value = _uiState.value.copy(isLoading = false, isDetected = false)
                 }
         }
-
+    }
 
     private fun toggleFaceSelection(detectedFaces: DetectedFaceState) {
         _uiState.value = _uiState.value.copy(

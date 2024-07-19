@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MediaStoreImage(
-    val id: Long,
-    val path: String,
-    val orientation: Long
+    val id: Long = 0L,
+    val path: String = "",
+    val orientation: Long = 0L
 )
