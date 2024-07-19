@@ -1,4 +1,4 @@
-package com.ham.icec.compose.detect.util
+package com.ham.icec.compose.detect.extension
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
