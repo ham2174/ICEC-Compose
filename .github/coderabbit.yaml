@@ -1,0 +1,5 @@
+reviews:
+  enable: true
+  language: ko
+  summary: true
+  request_changes: true
