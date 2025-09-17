@@ -27,10 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.DetectedImage
@@ -124,7 +126,10 @@ private fun DetectedFaceImage(
         AsyncImage(
             modifier = Modifier
                 .aspectRatio(1f),
-            model = face,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(data = face)
+                .memoryCacheKey(key = "face-${face.size}-${face.hashCode()}")
+                .build(),
             contentScale = ContentScale.FillBounds,
             contentDescription = null
         )
