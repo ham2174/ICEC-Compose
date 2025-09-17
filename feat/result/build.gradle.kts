@@ -1,8 +1,8 @@
 plugins {
     id("ham.icec.android.library")
-    id("ham.icec.android.library.compose")
-    id("ham.icec.android.feature")
     id("ham.icec.android.hilt")
+    id("ham.icec.compose")
+    id("ham.icec.serialization")
 }
 
 android {
@@ -11,6 +11,11 @@ android {
 
 dependencies {
     implementation(projects.core.utilAndroid)
+    implementation(projects.core.designSystem)
+    implementation(projects.core.ui)
+    implementation(projects.core.domain)
 
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
 }
