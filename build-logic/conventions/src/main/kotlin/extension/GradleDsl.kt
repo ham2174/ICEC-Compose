@@ -3,6 +3,7 @@ package extension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 
 fun DependencyHandlerScope.implementation(
@@ -18,19 +19,19 @@ fun DependencyHandlerScope.implementation(
 }
 
 fun DependencyHandlerScope.implementation(
-    artifact: MinimalExternalModuleDependency,
+    artifact: Provider<MinimalExternalModuleDependency>,
 ) {
     add("implementation", artifact)
 }
 
 fun DependencyHandlerScope.debugImplementation(
-    artifact: MinimalExternalModuleDependency,
+    artifact: Provider<MinimalExternalModuleDependency>,
 ) {
     add("debugImplementation", artifact)
 }
 
 fun DependencyHandlerScope.ksp(
-    artifact: MinimalExternalModuleDependency,
+    artifact: Provider<MinimalExternalModuleDependency>,
 ) {
     add("ksp", artifact)
 }
