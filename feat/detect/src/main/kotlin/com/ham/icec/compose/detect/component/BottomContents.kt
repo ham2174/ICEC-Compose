@@ -30,13 +30,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.theme.IcecTheme
 import com.ham.icec.compose.detect.DetectedImage
 import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.domain.detect.model.DetectedFace
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -122,13 +121,12 @@ private fun DetectedFaceImage(
                 onClick = onClickImage
             ),
     ) {
-        CoilImage(
+        AsyncImage(
             modifier = Modifier
                 .aspectRatio(1f),
-            imageModel = { face },
-            imageOptions = ImageOptions(
-                contentScale = ContentScale.FillBounds
-            )
+            model = face,
+            contentScale = ContentScale.FillBounds,
+            contentDescription = null
         )
 
         if (isSelected) {

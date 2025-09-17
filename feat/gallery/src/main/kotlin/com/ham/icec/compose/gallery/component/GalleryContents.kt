@@ -9,13 +9,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.ham.icec.compose.designsystem.R
+import coil3.compose.AsyncImage
 import com.ham.icec.compose.designsystem.modifier.clickableSingle
 import com.ham.icec.compose.gallery.ContentImage
-import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -36,14 +34,12 @@ internal fun GalleryContents(
             items = photos,
             key = { item -> item.id }
         ) { photos ->
-            CoilImage(
+            AsyncImage(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clickableSingle{ onClickPhoto(photos.stringUri, photos.orientation) },
-                imageModel = { photos.stringUri.toUri() },
-                previewPlaceholder = painterResource(
-                    id = R.drawable.sample_img
-                ),
+                contentDescription = null,
+                model = photos.stringUri.toUri(),
             )
         }
     }
