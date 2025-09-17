@@ -19,7 +19,6 @@ class AndroidApplicationPlugin : Plugin<Project> {
                 compileSdk = libs.version("compileSdk").toInt()
 
                 defaultConfig {
-                    applicationId = "com.ham.icec.compose"
                     minSdk = libs.version("minSdk").toInt()
                     targetSdk = libs.version("targetSdk").toInt()
                     versionCode = libs.version("versionCode").toInt()

@@ -1,5 +1,3 @@
-import extension.implementation
-
 plugins {
     id("ham.icec.android.application")
     id("ham.icec.android.hilt")
@@ -9,6 +7,10 @@ plugins {
 
 android {
     namespace = "com.ham.icec.compose"
+
+    defaultConfig {
+        applicationId = "com.ham.icec.compose"
+    }
 
     buildFeatures {
         buildConfig = true
