@@ -1,4 +1,5 @@
 import extension.android
+import extension.debugImplementation
 import extension.implementation
 import extension.library
 import extension.libs
@@ -21,7 +22,7 @@ internal class ComposePlugin : Plugin<Project> {
                 implementation(platform(libs.library("androidx.compose.bom")))
                 implementation(libs.library("androidx.compose.ui.graphics"))
                 implementation(libs.library("androidx.compose.ui.tooling"))
-                implementation(libs.library("androidx.compose.ui.tooling.preview"))
+                debugImplementation(libs.library("androidx.compose.ui.tooling.preview"))
                 implementation(libs.library("androidx.compose.foundation"))
                 implementation(libs.library("androidx.compose.material3"))
                 implementation(libs.library("androidx.compose.runtime"))
