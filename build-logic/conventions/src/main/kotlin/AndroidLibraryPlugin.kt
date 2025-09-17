@@ -1,5 +1,6 @@
 import extension.android
 import extension.implementation
+import extension.kotlin
 import extension.library
 import extension.libs
 import extension.version
@@ -17,12 +18,16 @@ internal class AndroidLibraryPlugin : Plugin<Project> {
             }
 
             android {
-                compileSdkVersion(libs.version("compileSdk").toInt())
+                compileSdk = libs.version("compileSdk").toInt()
 
                 compileOptions {
                     sourceCompatibility = JavaVersion.VERSION_21
                     targetCompatibility = JavaVersion.VERSION_21
                 }
+            }
+
+            kotlin {
+                jvmToolchain(21)
             }
 
             dependencies {

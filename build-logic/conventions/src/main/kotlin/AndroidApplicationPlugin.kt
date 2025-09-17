@@ -1,11 +1,10 @@
 import extension.androidApplication
+import extension.kotlin
 import extension.libs
 import extension.version
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 internal class AndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -31,11 +30,8 @@ internal class AndroidApplicationPlugin : Plugin<Project> {
                 }
             }
 
-            extensions.configure<KotlinAndroidProjectExtension>("kotlin") {
+            kotlin {
                 jvmToolchain(21)
-                compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_21)
-                }
             }
         }
     }

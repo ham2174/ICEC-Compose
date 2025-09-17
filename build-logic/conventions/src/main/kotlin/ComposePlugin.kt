@@ -1,4 +1,3 @@
-import extension.android
 import extension.debugImplementation
 import extension.implementation
 import extension.library
@@ -14,7 +13,7 @@ internal class ComposePlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.plugin.compose")
             }
 
-            android {
+            extensions.configure<com.android.build.api.dsl.CommonExtension<*, *, *, *, *, *>>("android") {
                 buildFeatures.compose = true
             }
 
@@ -30,14 +29,3 @@ internal class ComposePlugin : Plugin<Project> {
         }
     }
 }
-
-// feature
-                // compose
-                // hilt-android
-// android
-    // => coroutine
-// coroutine
-// serialize
-
-// module (design-system, domain, ui, viewmodel)
-// library (coroutine, immutable
