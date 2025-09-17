@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.modifier.clickableSingle
 import com.ham.icec.compose.designsystem.theme.IcecTheme
