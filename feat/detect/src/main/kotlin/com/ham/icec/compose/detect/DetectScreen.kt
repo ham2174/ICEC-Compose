@@ -163,7 +163,7 @@ fun DetectScreen(
                     },
                     error = {
                         Text(
-                            text = "이미지를 불러올 수 없습니다.",
+                            text = stringResource(id = R.string.error_load_image),
                             style = IcecTheme.typography.h1,
                             color = IcecTheme.colors.white
                         )

@@ -6,6 +6,7 @@
     <string name="all_select_string">전체선택</string>
     <string name="all_unselect_string">전체해제</string>
     <string name="next_string">다음</string>
+    <string name="error_load_image">이미지를 불러올 수 없습니다.</string>
     
     <!-- feat:mosaic -->
     <string name="mosaic_string">모자이크</string>
