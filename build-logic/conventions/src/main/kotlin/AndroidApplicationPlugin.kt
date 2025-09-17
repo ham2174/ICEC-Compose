@@ -7,7 +7,7 @@ import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
-class AndroidApplicationPlugin : Plugin<Project> {
+internal class AndroidApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
