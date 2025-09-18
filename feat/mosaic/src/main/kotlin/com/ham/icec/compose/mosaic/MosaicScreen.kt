@@ -1,6 +1,7 @@
 package com.ham.icec.compose.mosaic
 
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.toBitmap
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.component.IcecTopBarTrailingButton
 import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
@@ -135,23 +137,29 @@ private fun MosaicScreen(
                     )
                 },
                 success = { state ->
-                    SubcomposeAsyncImageContent()
-                    val drawable = state.result.image
-                    val imageBitmap = (drawable as? BitmapDrawable)?.bitmap?.asImageBitmap()
-                    imageBitmap?.let { bitmap ->
-                        when (effectMode) {
-                            EffectMode.BLUR -> {
-                                // TODO: 블러 효과 적용
-                            }
+                    val imageBitmap = remember(state.result.image) {
+                        when (val d = state.result.image) {
+                            is BitmapDrawable -> d.bitmap.asImageBitmap()
+                            is Drawable -> d.toBitmap().asImageBitmap()
+                            else -> null
+                        }
+                    }
 
-                            EffectMode.MOSAIC -> {
+                    when (effectMode) {
+                        EffectMode.MOSAIC -> {
+                            imageBitmap?.let { bitmap ->
                                 MosaicImage(
                                     imageBitmap = bitmap,
                                     pixelSize = sliderPosition,
                                     boundingBoxes = boundingBoxes,
                                     onChangeMosaicImage = onChangeMosaicImage
                                 )
-                            }
+                            } ?: SubcomposeAsyncImageContent()
+                        }
+
+                        EffectMode.BLUR -> {
+                            // TODO: 블러 효과 적용
+                            SubcomposeAsyncImageContent()
                         }
                     }
                 }
