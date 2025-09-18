@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -34,12 +35,14 @@ internal fun GalleryContents(
             items = photos,
             key = { item -> item.id }
         ) { photos ->
+            val model = remember(photos.stringUri) { photos.stringUri.toUri() }
+
             AsyncImage(
                 modifier = Modifier
                     .aspectRatio(1f)
                     .clickableSingle{ onClickPhoto(photos.stringUri, photos.orientation) },
                 contentDescription = null,
-                model = photos.stringUri.toUri(),
+                model = model,
             )
         }
     }
