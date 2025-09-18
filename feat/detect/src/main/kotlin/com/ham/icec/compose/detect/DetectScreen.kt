@@ -1,7 +1,7 @@
 package com.ham.icec.compose.detect
 
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,12 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -168,7 +166,7 @@ fun DetectScreen(
                             color = IcecTheme.colors.white
                         )
                     },
-                    success = { state ->
+                    success = { state -> // 내부적으로 Box 스코프로 이루어져 있음
                         val painter = state.painter
                         if (!isDetected) {
                             val width = painter.intrinsicSize.width.toInt()
@@ -178,33 +176,21 @@ fun DetectScreen(
 
                         SubcomposeAsyncImageContent()
 
-                        val imageBitmap = (state.result.image as? BitmapDrawable)
-                            ?.bitmap
-                            ?.asImageBitmap()
-
-                        imageBitmap?.let { bitmap ->
-                            Image(
-                                modifier = Modifier.drawWithContent {
-                                    drawContent()
-                                    drawIntoCanvas { canvas ->
-                                        boundingBoxes.forEach { rect ->
-                                            canvas.drawRect(
-                                                left = rect.left.toFloat(),
-                                                top = rect.top.toFloat(),
-                                                right = rect.right.toFloat(),
-                                                bottom = rect.bottom.toFloat(),
-                                                paint = Paint().apply {
-                                                    color = Color.Red
-                                                    style = PaintingStyle.Stroke
-                                                    strokeWidth = 5f
-                                                }
-                                            )
-                                        }
-                                    }
-                                },
-                                bitmap = bitmap,
-                                contentDescription = ""
-                            )
+                        Canvas(modifier = Modifier.matchParentSize()) {
+                            boundingBoxes.forEach { rect ->
+                                drawRect(
+                                    color = Color.Red,
+                                    topLeft = Offset(
+                                        x = rect.left.toFloat(),
+                                        y = rect.top.toFloat()
+                                    ),
+                                    size = Size(
+                                        width = (rect.right - rect.left).toFloat(),
+                                        height = (rect.bottom - rect.top).toFloat()
+                                    ),
+                                    style = Stroke(width = 5f)
+                                )
+                            }
                         }
                     }
                 )
