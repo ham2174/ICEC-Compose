@@ -108,12 +108,6 @@ private fun MosaicScreen(
         )
 
         CenterImageFrame {
-            AsyncImage(
-                model = originalImage,
-                contentScale = ContentScale.Fit,
-                contentDescription = null,
-            )
-
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(originalImage)
