@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -21,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
@@ -108,11 +108,16 @@ private fun MosaicScreen(
         )
 
         CenterImageFrame {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
+            val context = LocalContext.current
+            val request = remember(originalImage) {
+                ImageRequest.Builder(context)
                     .data(originalImage)
                     .crossfade(true)
-                    .build(),
+                    .build()
+            }
+
+            SubcomposeAsyncImage(
+                model = request,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 loading = {
