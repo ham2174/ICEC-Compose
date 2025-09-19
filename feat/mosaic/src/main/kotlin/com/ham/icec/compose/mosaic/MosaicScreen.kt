@@ -140,7 +140,7 @@ private fun MosaicScreen(
                 success = { state ->
                     val imageBitmap = remember(state.result.image) {
                         runCatching { state.result.image.toBitmap().asImageBitmap() }
-                            .onFailure { Log.e(null, "Image toBitmap 실패: ${it.message}") }
+                            .onFailure { t -> Log.e("MosaicScreen", "Image toBitmap 실패", t) }
                             .getOrNull()
                     }
 
