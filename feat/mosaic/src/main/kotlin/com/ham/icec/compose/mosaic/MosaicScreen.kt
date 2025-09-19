@@ -3,6 +3,7 @@ package com.ham.icec.compose.mosaic
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -138,11 +139,9 @@ private fun MosaicScreen(
                 },
                 success = { state ->
                     val imageBitmap = remember(state.result.image) {
-                        when (val d = state.result.image) {
-                            is BitmapDrawable -> d.bitmap.asImageBitmap()
-                            is Drawable -> d.toBitmap().asImageBitmap()
-                            else -> null
-                        }
+                        runCatching { state.result.image.toBitmap().asImageBitmap() }
+                            .onFailure { Log.e(null, "Image toBitmap 실패: ${it.message}") }
+                            .getOrNull()
                     }
 
                     when (effectMode) {
