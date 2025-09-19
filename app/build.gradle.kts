@@ -1,8 +1,8 @@
 plugins {
     id("ham.icec.android.application")
-    id("ham.icec.android.application.compose")
     id("ham.icec.android.hilt")
-    alias(libs.plugins.kotlinx.serialization)
+    id("ham.icec.compose")
+    id("ham.icec.serialization")
 }
 
 android {
@@ -10,13 +10,9 @@ android {
 
     defaultConfig {
         applicationId = "com.ham.icec.compose"
-        versionCode = libs.versions.versionCode.get().toInt()
-        versionName = libs.versions.versionName.get()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
-        compose = true
         buildConfig = true
     }
 
@@ -40,23 +36,10 @@ dependencies {
     implementation(projects.core.faceDetection)
     implementation(projects.core.utilAndroid)
 
-    // compose
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.lifecycle)
-    implementation(libs.androidx.compose.foundation)
-
-    // hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-    androidTestImplementation(libs.hilt.testing)
-    kspAndroidTest(libs.hilt.compiler)
-
-    // serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    // unit test
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // library
+    implementation(libs.androidx.compose.activity)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
 }

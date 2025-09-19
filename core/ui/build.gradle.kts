@@ -1,6 +1,6 @@
 plugins {
     id("ham.icec.android.library")
-    id("ham.icec.android.library.compose")
+    id("ham.icec.compose")
 }
 
 android {
@@ -9,4 +9,6 @@ android {
 
 dependencies {
     implementation(projects.core.designSystem)
+
+    implementation(libs.coil.compose)
 }

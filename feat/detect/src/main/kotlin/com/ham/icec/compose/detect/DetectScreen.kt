@@ -1,6 +1,7 @@
 package com.ham.icec.compose.detect
 
 import android.net.Uri
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,18 +15,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.component.IcecLoadingIndicator
 import com.ham.icec.compose.designsystem.component.IcecTopBarTrailingButton
@@ -36,8 +40,6 @@ import com.ham.icec.compose.domain.detect.model.BoundingBox
 import com.ham.icec.compose.ui.common.CenterImageFrame
 import com.ham.icec.compose.ui.common.IcecTopBar
 import com.ham.icec.compose.utilandroid.extension.resizedByteArray
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.coil.CoilImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -143,51 +145,53 @@ fun DetectScreen(
             )
 
             CenterImageFrame {
-                CoilImage(
-                    previewPlaceholder = painterResource(id = R.drawable.sample_img),
-                    imageModel = { centerImage },
-                    imageOptions = ImageOptions(
-                        contentScale = ContentScale.Fit
-                    ),
-                    success = { imageState, painter ->
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(centerImage)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    loading = {
+                        Image(
+                            painter = painterResource(id = R.drawable.sample_img),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit
+                        )
+                    },
+                    error = {
+                        Text(
+                            text = stringResource(id = R.string.error_load_image),
+                            style = IcecTheme.typography.h1,
+                            color = IcecTheme.colors.white
+                        )
+                    },
+                    success = { state -> // 내부적으로 Box 스코프로 이루어져 있음
+                        val painter = state.painter
                         if (!isDetected) {
                             val width = painter.intrinsicSize.width.toInt()
                             val height = painter.intrinsicSize.height.toInt()
                             onSizeChangedImage(width, height)
                         }
 
-                        imageState.imageBitmap?.let { imageBitmap ->
-                            Image(
-                                modifier = Modifier
-                                    .drawWithContent {
-                                        drawContent()
-                                        drawIntoCanvas { canvas ->
-                                            boundingBoxes.forEach { rect ->
-                                                canvas.drawRect(
-                                                    left = rect.left.toFloat(),
-                                                    top = rect.top.toFloat(),
-                                                    right = rect.right.toFloat(),
-                                                    bottom = rect.bottom.toFloat(),
-                                                    paint = Paint().apply {
-                                                        color = Color.Red
-                                                        style = PaintingStyle.Stroke
-                                                        strokeWidth = 5f
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    },
-                                bitmap = imageBitmap,
-                                contentDescription = ""
-                            )
+                        SubcomposeAsyncImageContent()
+
+                        Canvas(modifier = Modifier.matchParentSize()) {
+                            boundingBoxes.forEach { rect ->
+                                drawRect(
+                                    color = Color.Red,
+                                    topLeft = Offset(
+                                        x = rect.left.toFloat(),
+                                        y = rect.top.toFloat()
+                                    ),
+                                    size = Size(
+                                        width = (rect.right - rect.left).toFloat(),
+                                        height = (rect.bottom - rect.top).toFloat()
+                                    ),
+                                    style = Stroke(width = 5f)
+                                )
+                            }
                         }
-                    },
-                    failure = {
-                        Text(
-                            text = "이미지를 불러올 수 없습니다.",
-                            style = IcecTheme.typography.h1,
-                            color = IcecTheme.colors.white
-                        )
                     }
                 )
             }

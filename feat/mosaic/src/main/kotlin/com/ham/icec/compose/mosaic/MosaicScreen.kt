@@ -1,6 +1,10 @@
 package com.ham.icec.compose.mosaic
 
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +14,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.toBitmap
 import com.ham.icec.compose.designsystem.R
 import com.ham.icec.compose.designsystem.component.IcecTopBarTrailingButton
 import com.ham.icec.compose.designsystem.modifier.clickableSingleNoRipple
@@ -28,8 +40,6 @@ import com.ham.icec.compose.mosaic.component.EffectSlider
 import com.ham.icec.compose.mosaic.component.MosaicImage
 import com.ham.icec.compose.ui.common.CenterImageFrame
 import com.ham.icec.compose.ui.common.IcecTopBar
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.coil.CoilImage
 
 @Composable
 fun MosaicRoute(
@@ -101,33 +111,56 @@ private fun MosaicScreen(
         )
 
         CenterImageFrame {
-            CoilImage(
-                imageOptions = ImageOptions(
-                    contentScale = ContentScale.Fit
-                ),
-                imageModel = { originalImage },
-                previewPlaceholder = painterResource(id = R.drawable.sample_img),
-                success = { imageState, _ ->
-                    imageState.imageBitmap?.let { imageBitmap ->
-                        when (effectMode) {
-                            EffectMode.BLUR -> { /* TODO : 블러 이펙트 이미지 구현 */ }
-                            EffectMode.MOSAIC -> {
+            val context = LocalContext.current
+            val request = remember(originalImage) {
+                ImageRequest.Builder(context)
+                    .data(originalImage)
+                    .crossfade(true)
+                    .build()
+            }
+
+            SubcomposeAsyncImage(
+                model = request,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                loading = {
+                    Image(
+                        painter = painterResource(R.drawable.sample_img),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit
+                    )
+                },
+                error = {
+                    Text(
+                        text = stringResource(id = R.string.error_load_image),
+                        style = IcecTheme.typography.h1,
+                        color = IcecTheme.colors.white
+                    )
+                },
+                success = { state ->
+                    val imageBitmap = remember(state.result.image) {
+                        runCatching { state.result.image.toBitmap().asImageBitmap() }
+                            .onFailure { t -> Log.e("MosaicScreen", "Image toBitmap 실패", t) }
+                            .getOrNull()
+                    }
+
+                    when (effectMode) {
+                        EffectMode.MOSAIC -> {
+                            imageBitmap?.let { bitmap ->
                                 MosaicImage(
-                                    imageBitmap = imageBitmap,
+                                    imageBitmap = bitmap,
                                     pixelSize = sliderPosition,
                                     boundingBoxes = boundingBoxes,
                                     onChangeMosaicImage = onChangeMosaicImage
                                 )
-                            }
+                            } ?: SubcomposeAsyncImageContent()
+                        }
+
+                        EffectMode.BLUR -> {
+                            // TODO: 블러 효과 적용
+                            SubcomposeAsyncImageContent()
                         }
                     }
-                },
-                failure = {
-                    Text(
-                        text = "이미지를 불러올 수 없습니다.",
-                        style = IcecTheme.typography.h1,
-                        color = IcecTheme.colors.white
-                    )
                 }
             )
         }

@@ -5,40 +5,39 @@ plugins {
 group = "com.ham.icec.compose.buildlogic"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 dependencies {
-    compileOnly(libs.agp)
+    compileOnly(libs.android.gradleplugin)
     compileOnly(libs.kotlin.gradleplugin)
+    compileOnly(libs.kotlin.serialization.gradleplugin)
+    compileOnly(libs.compose.compiler.gradleplugin)
+    compileOnly(libs.ksp.gradleplugin)
 }
 
 gradlePlugin {
     plugins {
-        register("androidApplicationCompose") {
-            id = "ham.icec.android.application.compose"
-            implementationClass = "AndroidApplicationComposeConventionPlugin"
-        }
         register("androidApplication") {
             id = "ham.icec.android.application"
-            implementationClass = "AndroidApplicationConventionPlugin"
-        }
-        register("androidLibraryCompose") {
-            id = "ham.icec.android.library.compose"
-            implementationClass = "AndroidLibraryComposeConventionPlugin"
+            implementationClass = "AndroidApplicationPlugin"
         }
         register("androidLibrary") {
             id = "ham.icec.android.library"
-            implementationClass = "AndroidLibraryConventionPlugin"
-        }
-        register("androidFeature") {
-            id = "ham.icec.android.feature"
-            implementationClass = "AndroidFeatureConventionPlugin"
+            implementationClass = "AndroidLibraryPlugin"
         }
         register("androidHilt") {
             id = "ham.icec.android.hilt"
-            implementationClass = "AndroidHiltConventionPlugin"
+            implementationClass = "AndroidHiltPlugin"
+        }
+        register("compose") {
+            id = "ham.icec.compose"
+            implementationClass = "ComposePlugin"
+        }
+        register("serialization") {
+            id = "ham.icec.serialization"
+            implementationClass = "SerializationPlugin"
         }
     }
 }
